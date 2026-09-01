@@ -15,6 +15,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('today');
   const [appState, setAppState] = useState(null);
+  const [selectedHabitForAlternatives, setSelectedHabitForAlternatives] = useState(null);
 
   // Escuchar cambios de autenticación
   useEffect(() => {
@@ -87,6 +88,11 @@ export default function App() {
     }
   }
 
+  function handleNavigateToTab(tab, habit = null) {
+    setSelectedHabitForAlternatives(habit);
+    setActiveTab(tab);
+  }
+
   if (loading) {
     return <div className="loading">Cargando...</div>;
   }
@@ -110,11 +116,11 @@ export default function App() {
       </header>
 
       <main className="app-main">
-        {activeTab === 'today' && <TabToday state={appState} updateState={updateAppState} />}
+        {activeTab === 'today' && <TabToday state={appState} updateState={updateAppState} onNavigateToTab={handleNavigateToTab} />}
         {activeTab === 'sos' && <TabSOS state={appState} updateState={updateAppState} />}
         {activeTab === 'checkin' && <TabCheckIn state={appState} updateState={updateAppState} />}
         {activeTab === 'witness' && <TabWitness state={appState} />}
-        {activeTab === 'alternatives' && <TabAlternatives state={appState} updateState={updateAppState} />}
+        {activeTab === 'alternatives' && <TabAlternatives state={appState} updateState={updateAppState} selectedHabit={selectedHabitForAlternatives} />}
       </main>
 
       <nav className="app-tabs">

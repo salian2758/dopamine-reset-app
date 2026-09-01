@@ -16,7 +16,7 @@ const CHAPTERS = {
   1000: { min: 1000, max: Infinity, name: 'IV: Legendario' },
 };
 
-export default function TabToday({ state, updateState }) {
+export default function TabToday({ state, updateState, onNavigateToTab }) {
   const [newTaskText, setNewTaskText] = useState('');
   const [selectedHabit, setSelectedHabit] = useState(null);
 
@@ -149,7 +149,16 @@ export default function TabToday({ state, updateState }) {
           <div className="modal-content">
             <button className="close-btn" onClick={() => setSelectedHabit(null)}>×</button>
             <h3>{HABITS_CONFIG[selectedHabit].name}</h3>
-            <p>Click para ver intervenciones en la pestaña "Alternativas"</p>
+            <p>Intervenciones para este hábito:</p>
+            <button 
+              className="action-btn"
+              onClick={() => {
+                onNavigateToTab('alternatives', selectedHabit);
+                setSelectedHabit(null);
+              }}
+            >
+              Ver alternativas →
+            </button>
           </div>
         </div>
       )}
