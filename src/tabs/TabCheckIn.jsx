@@ -34,11 +34,15 @@ export default function TabCheckIn({ state, updateState }) {
       message: generateWitnessMessage(tasksCompleted, answers),
     };
     
+    // Resetear tareas para el nuevo día
+    const resetTasks = state.dailyTasks.map(task => ({...task, done: false}));
+    
     const newWitnesses = [witness, ...state.witnesses].slice(0, 10);
     updateState({ 
       witnesses: newWitnesses,
       lastCheckIn: new Date().toISOString(),
       totalPoints: (state.totalPoints || 0) + totalPoints,
+      dailyTasks: resetTasks, // Resetear tareas
     });
     
     setSubmitted(true);
