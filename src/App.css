@@ -1086,3 +1086,44 @@ body {
   color: #ef4444;
   background: rgba(239, 68, 68, 0.1);
 }
+
+/* ALTERNATIVES - TOP INTERVENTIONS */
+.top-interventions-section {
+  margin-bottom: 2rem;
+  border-top: 2px solid #667eea;
+  padding-top: 1rem;
+}
+
+.top-header {
+  font-size: 14px;
+  font-weight: 700;
+  color: #667eea;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.intervention-item.top {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.05));
+  border: 1px solid #667eea;
+  margin-bottom: 12px;
+}
+
+.intervention-item.top .intervention-name::before {
+  content: "✦ ";
+  color: #667eea;
+  font-weight: 700;
+}
+
+.specific-interventions-section {
+  margin-top: 2rem;
+}
+
+.specific-header {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}

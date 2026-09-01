@@ -72,19 +72,47 @@ const INTERVENTIONS = {
   },
 };
 
-export default function TabAlternatives({ state, updateState }) {
-  const [habit, setHabit] = useState('');
+const TOP_10_UNIVERSAL = [
+  { name: "Paseo 5 minutos", desc: "Aire fresco. Reset neurológico.", time: "5 min", critical: true, habits: ["Pornografía", "Procrastinación", "Pantallas", "Porros", "Tabaco"] },
+  { name: "Respiración 4-7-8", desc: "Inhala 4, sostén 7, exhala 8. Vagal reset.", time: "2 min", critical: true, habits: ["Pornografía", "Procrastinación", "Porros", "Tabaco"] },
+  { name: "Escucha música", desc: "Dopamina limpia. Enfoque.", time: "3-5 min", critical: false, habits: ["Procrastinación", "Pantallas", "Porros"] },
+  { name: "Agua fría en cara", desc: "Shock del sistema. Quiebra impulso.", time: "1 min", critical: true, habits: ["Pornografía", "Procrastinación", "Porros"] },
+  { name: "Micro-tarea (2 min)", desc: "Acción inmediata. Momentum.", time: "2 min", critical: true, habits: ["Procrastinación", "Pantallas"] },
+  { name: "Llama a accountability", desc: "'Tengo impulso'. Voz real.", time: "5 min", critical: true, habits: ["Pornografía", "Porros"] },
+  { name: "Cambiar de cuarto", desc: "Rompe contexto. Nuevo circuito.", time: "1 min", critical: true, habits: ["Pornografía", "Pantallas", "Porros"] },
+  { name: "Estiramiento/ejercicio", desc: "Movimiento. Descarga tensión.", time: "3-5 min", critical: false, habits: ["Procrastinación", "Pantallas", "Porros", "Tabaco"] },
+  { name: "Journaling rápido", desc: "Escribe impulso. Comprende trigger.", time: "3 min", critical: false, habits: ["Pornografía", "Procrastinación"] },
+  { name: "Bebe agua", desc: "Hidratación. Reset metabólico.", time: "1 min", critical: false, habits: ["Procrastinación", "Pantallas", "Tabaco"] },
+];
+
+export default function TabAlternatives({ state, updateState, selectedHabit = '' }) {
+  const [habit, setHabit] = useState(selectedHabit || '');
   const [phase, setPhase] = useState('');
   const [company, setCompany] = useState('');
   const [location, setLocation] = useState('');
 
-  function getInterventions() {
+  function getTopUniversal() {
+    // TOP 10 universal sin filtros
+    if (!habit && !phase && !company && !location) {
+      return TOP_10_UNIVERSAL;
+    }
+    // TOP por hábito (si seleccionó hábito pero sin otros filtros)
+    if (habit && !phase && !company && !location) {
+      return TOP_10_UNIVERSAL.filter(i => i.habits.includes(habit));
+    }
+    return [];
+  }
+
+  function getSpecificInterventions() {
+    // Intervenciones específicas (con TODOS los filtros)
     if (!habit || !phase || !company || !location) return [];
     const key = `${company}_${location}`;
     return INTERVENTIONS[habit]?.[phase]?.[key] || [];
   }
 
-  const interventions = getInterventions();
+  const topInterventions = getTopUniversal();
+  const specificInterventions = getSpecificInterventions();
+  const interventions = specificInterventions.length > 0 ? specificInterventions : topInterventions;
 
   return (
     <div className="tab-alternatives">
@@ -190,18 +218,40 @@ export default function TabAlternatives({ state, updateState }) {
       </div>
 
       <div className="interventions-list">
-        {interventions.length === 0 ? (
-          <div className="empty-interventions">
-            Selecciona los filtros para ver intervenciones
-          </div>
-        ) : (
-          interventions.map((intervention, i) => (
-            <div key={i} className={`intervention-item ${intervention.critical ? 'critical' : ''}`}>
-              <div className="intervention-name">{intervention.name}</div>
-              <div className="intervention-desc">{intervention.desc}</div>
-              <div className="intervention-time">⏱️ {intervention.time}</div>
+        {topInterventions.length > 0 && (
+          <div className="top-interventions-section">
+            <div className="top-header">
+              ⭐ TOP {habit ? `para ${habit}` : 'Universal'}
             </div>
-          ))
+            {topInterventions.map((intervention, i) => (
+              <div key={`top-${i}`} className={`intervention-item critical top`}>
+                <div className="intervention-name">⭐ {intervention.name}</div>
+                <div className="intervention-desc">{intervention.desc}</div>
+                <div className="intervention-time">⏱️ {intervention.time}</div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {specificInterventions.length > 0 && (
+          <div className="specific-interventions-section">
+            <div className="specific-header">
+              🎯 Para esta situación
+            </div>
+            {specificInterventions.map((intervention, i) => (
+              <div key={`specific-${i}`} className={`intervention-item ${intervention.critical ? 'critical' : ''}`}>
+                <div className="intervention-name">{intervention.name}</div>
+                <div className="intervention-desc">{intervention.desc}</div>
+                <div className="intervention-time">⏱️ {intervention.time}</div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {topInterventions.length === 0 && specificInterventions.length === 0 && (
+          <div className="empty-interventions">
+            {habit ? `Selecciona fase, compañía y ubicación para más opciones.` : 'Selecciona un hábito o filtros para ver intervenciones.'}
+          </div>
         )}
       </div>
     </div>
