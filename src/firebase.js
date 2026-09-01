@@ -3,12 +3,12 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyC67JPFYgoCb3P97a-HGpwo50DrIwsLtoY",
+  apiKey: "AIzaSyCe7JPFYgoCD3P97a-HGpwo50DrIwsLtoY",
   authDomain: "dopamine-reset-rafa.firebaseapp.com",
   projectId: "dopamine-reset-rafa",
   storageBucket: "dopamine-reset-rafa.firebasestorage.app",
   messagingSenderId: "532560000783",
-  appId: "1:532560000783:web:04ccc36d0043513101c9707a"
+  appId: "1:532560000783:web:04ccc36d00435101c9707a"
 };
 
 const app = initializeApp(firebaseConfig);
