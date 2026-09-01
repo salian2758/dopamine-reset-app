@@ -197,7 +197,7 @@ export default function TabCheckIn({ state, updateState }) {
                 className={answers.pantallas === 0 ? 'active' : ''} 
                 onClick={() => setAnswers({...answers, pantallas: 0})}
               >
-                Moderado (<1 hora)
+                Moderado (menos de 1h)
               </button>
               <button 
                 className={answers.pantallas === 7 ? 'active' : ''} 
