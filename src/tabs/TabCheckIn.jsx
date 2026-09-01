@@ -68,29 +68,41 @@ export default function TabCheckIn({ state, updateState }) {
     const totalTasks = state.dailyTasks?.length || 3;
     
     if (completedCount === totalTasks) {
-      points += 10; // Todas completas
+      points += 10; // Todas completas: +10
     } else if (completedCount === 0) {
-      points -= 15; // Ninguna
+      points -= 10; // Ninguna: -10 (ajustado de -15)
     } else if (completedCount === 1) {
-      points += 0; // 1 de 3
+      points += 0; // 1 de 3: neutral
     } else if (completedCount === 2) {
-      points += 5; // 2 de 3
+      points += 5; // 2 de 3: +5
     }
     
-    // Puntos de hábitos
-    Object.values(answers).forEach(val => {
-      if (val !== null) points += val;
-    });
+    // Hábitos: simétrico ±10 balance
+    // Pornografía: -10 / 0 / +10
+    if (answers.pornografia !== null) points += answers.pornografia;
+    
+    // Porros: -10 / 0 / +10
+    if (answers.porros !== null) points += answers.porros;
+    
+    // Tabaco: -10 / 0 / +10 (ajustado de -10/0/+5)
+    if (answers.tabaco !== null) points += answers.tabaco;
+    
+    // Onicofagia: -10 / -5 / +5 / +10 (ajustado de -7/-3/+2/+5)
+    if (answers.onicofagia !== null) points += answers.onicofagia;
+    
+    // Pantallas (apps): -10 / +10
+    if (answers.pantallas_apps !== null) points += answers.pantallas_apps;
+    
+    // Pantallas (impulso): -7 / 0 / +7 (más suave que otros hábitos)
+    if (answers.pantallas_impulso !== null) points += answers.pantallas_impulso;
     
     // Puntos de tareas (proporcionales a prioridad)
     const taskPoints = [8, 5, 2]; // Tarea 1, 2, 3
     if (state.dailyTasks && state.dailyTasks.length > 0) {
       state.dailyTasks.slice(0, 3).forEach((task, index) => {
         if (tasks[task.id]) {
-          // Tarea completada: suma
           points += taskPoints[index];
         } else {
-          // Tarea no completada: resta
           points -= taskPoints[index];
         }
       });
@@ -176,26 +188,26 @@ export default function TabCheckIn({ state, updateState }) {
             <label>💅 Onicofagia</label>
             <div className="answer-options">
               <button 
-                className={answers.onicofagia === -7 ? 'active' : ''} 
-                onClick={() => setAnswers({...answers, onicofagia: -7})}
+                className={answers.onicofagia === -10 ? 'active' : ''} 
+                onClick={() => setAnswers({...answers, onicofagia: -10})}
               >
                 Dañadas
               </button>
               <button 
-                className={answers.onicofagia === -3 ? 'active' : ''} 
-                onClick={() => setAnswers({...answers, onicofagia: -3})}
+                className={answers.onicofagia === -5 ? 'active' : ''} 
+                onClick={() => setAnswers({...answers, onicofagia: -5})}
               >
                 Regular
               </button>
               <button 
-                className={answers.onicofagia === 2 ? 'active' : ''} 
-                onClick={() => setAnswers({...answers, onicofagia: 2})}
+                className={answers.onicofagia === 5 ? 'active' : ''} 
+                onClick={() => setAnswers({...answers, onicofagia: 5})}
               >
                 Bien
               </button>
               <button 
-                className={answers.onicofagia === 5 ? 'active' : ''} 
-                onClick={() => setAnswers({...answers, onicofagia: 5})}
+                className={answers.onicofagia === 10 ? 'active' : ''} 
+                onClick={() => setAnswers({...answers, onicofagia: 10})}
               >
                 ✓ Excelentes
               </button>
@@ -303,8 +315,8 @@ export default function TabCheckIn({ state, updateState }) {
             <label>🚬 Tabaco</label>
             <div className="answer-options">
               <button 
-                className={answers.tabaco === 5 ? 'active' : ''} 
-                onClick={() => setAnswers({...answers, tabaco: 5})}
+                className={answers.tabaco === 10 ? 'active' : ''} 
+                onClick={() => setAnswers({...answers, tabaco: 10})}
               >
                 ✓ Nada
               </button>
