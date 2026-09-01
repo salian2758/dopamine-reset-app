@@ -26,7 +26,7 @@ export default function TabCheckIn({ state, updateState }) {
   }
 
   function handleSubmit() {
-    const totalPoints = calculatePoints(answers);
+    const totalPoints = calculatePoints(answers, tasksCompleted);
     
     const witness = {
       id: Date.now(),
@@ -62,11 +62,28 @@ export default function TabCheckIn({ state, updateState }) {
     }, 3000);
   }
 
-  function calculatePoints(answers) {
+  function calculatePoints(answers, tasks) {
     let points = 0;
+    
+    // Puntos de hábitos
     Object.values(answers).forEach(val => {
       if (val !== null) points += val;
     });
+    
+    // Puntos de tareas (proporcionales a prioridad)
+    const taskPoints = [8, 5, 2]; // Tarea 1, 2, 3
+    if (state.dailyTasks && state.dailyTasks.length > 0) {
+      state.dailyTasks.slice(0, 3).forEach((task, index) => {
+        if (tasks[task.id]) {
+          // Tarea completada: suma
+          points += taskPoints[index];
+        } else {
+          // Tarea no completada: resta
+          points -= taskPoints[index];
+        }
+      });
+    }
+    
     return points;
   }
 
@@ -124,6 +141,23 @@ export default function TabCheckIn({ state, updateState }) {
 
       {step === 'habits' && (
         <div className="questions-container">
+          {/* BREAKDOWN DE TAREAS */}
+          <div className="tasks-breakdown">
+            <div className="breakdown-title">📊 Resumen Tareas</div>
+            {state.dailyTasks && state.dailyTasks.slice(0, 3).map((task, index) => {
+              const taskPoints = [8, 5, 2][index];
+              const completed = tasksCompleted[task.id];
+              const points = completed ? taskPoints : -taskPoints;
+              return (
+                <div key={task.id} className={`breakdown-item ${completed ? 'completed' : 'failed'}`}>
+                  <span className="task-name">{task.text}</span>
+                  <span className={`task-points ${completed ? 'positive' : 'negative'}`}>
+                    {completed ? '+' : ''}{points}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
           {/* PROCRASTINACIÓN */}
           <div className="question">
             <label>⏸️ Procrastinación</label>
