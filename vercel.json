@@ -2,8 +2,5 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
-  "devCommand": "vite",
-  "env": {
-    "VITE_APP_NAME": "@dopamine-reset"
-  }
+  "devCommand": "vite"
 }
