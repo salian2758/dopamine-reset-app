@@ -4,7 +4,6 @@ export default function TabCheckIn({ state, updateState }) {
   const [step, setStep] = useState('tasks');
   const [tasksCompleted, setTasksCompleted] = useState({});
   const [answers, setAnswers] = useState({
-    procrastinacion: null,
     onicofagia: null,
     pantallas_apps: null,
     pantallas_impulso: null,
@@ -51,7 +50,6 @@ export default function TabCheckIn({ state, updateState }) {
       setStep('tasks');
       setTasksCompleted({});
       setAnswers({
-        procrastinacion: null,
         onicofagia: null,
         pantallas_apps: null,
         pantallas_impulso: null,
@@ -64,6 +62,20 @@ export default function TabCheckIn({ state, updateState }) {
 
   function calculatePoints(answers, tasks) {
     let points = 0;
+    
+    // Procrastinación: se calcula automáticamente desde tareas
+    const completedCount = Object.values(tasks).filter(t => t).length;
+    const totalTasks = state.dailyTasks?.length || 3;
+    
+    if (completedCount === totalTasks) {
+      points += 10; // Todas completas
+    } else if (completedCount === 0) {
+      points -= 15; // Ninguna
+    } else if (completedCount === 1) {
+      points += 0; // 1 de 3
+    } else if (completedCount === 2) {
+      points += 5; // 2 de 3
+    }
     
     // Puntos de hábitos
     Object.values(answers).forEach(val => {
@@ -158,32 +170,7 @@ export default function TabCheckIn({ state, updateState }) {
               );
             })}
           </div>
-          {/* PROCRASTINACIÓN */}
-          <div className="question">
-            <label>⏸️ Procrastinación</label>
-            <p className="question-hint">{tasksCompleteCount}/{totalTasks} tareas completadas</p>
-            <div className="answer-options">
-              <button 
-                className={answers.procrastinacion === -15 ? 'active' : ''} 
-                onClick={() => setAnswers({...answers, procrastinacion: -15})}
-              >
-                0/{totalTasks}
-              </button>
-              <button 
-                className={answers.procrastinacion === 5 ? 'active' : ''} 
-                onClick={() => setAnswers({...answers, procrastinacion: 5})}
-              >
-                1-2/{totalTasks}
-              </button>
-              <button 
-                className={answers.procrastinacion === 10 ? 'active' : ''} 
-                onClick={() => setAnswers({...answers, procrastinacion: 10})}
-              >
-                ✓ {totalTasks}/{totalTasks}
-              </button>
-            </div>
-          </div>
-
+          
           {/* ONICOFAGIA */}
           <div className="question">
             <label>💅 Onicofagia</label>
