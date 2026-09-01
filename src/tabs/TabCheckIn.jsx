@@ -225,7 +225,7 @@ export default function TabCheckIn({ state, updateState }) {
           {/* PANTALLAS - PREGUNTA 2: IMPULSO */}
           <div className="question">
             <label>📱 Pantallas - ¿Uso por impulso (no programado)?</label>
-            <p className="question-hint">Sí = perdiste control. No = totalmente programado</p>
+            <p className="question-hint">No (+7) → Poco (0) → Bastante (-10)</p>
             <div className="answer-options">
               <button 
                 className={answers.pantallas_impulso === 7 ? 'active' : ''} 
