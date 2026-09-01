@@ -217,7 +217,7 @@ export default function TabToday({ state, updateState, onNavigateToTab }) {
             <button 
               className="action-btn"
               onClick={() => {
-                onNavigateToTab('alternatives', selectedHabit);
+                onNavigateToTab('alternatives', HABITS_CONFIG[selectedHabit].name);
                 setSelectedHabit(null);
               }}
             >

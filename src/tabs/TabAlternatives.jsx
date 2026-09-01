@@ -125,7 +125,7 @@ export default function TabAlternatives({ state, updateState, selectedHabit = ''
         <div className="filter-group">
           <label>Hábito</label>
           <select value={habit} onChange={e => setHabit(e.target.value)}>
-            <option value="">← Selecciona</option>
+            <option value="">← Selecciona o deselecciona</option>
             {Object.keys(INTERVENTIONS).map(h => (
               <option key={h} value={h}>{h}</option>
             ))}
@@ -137,19 +137,19 @@ export default function TabAlternatives({ state, updateState, selectedHabit = ''
           <div className="phase-buttons">
             <button 
               className={phase === 'deteccion' ? 'active' : ''} 
-              onClick={() => setPhase('deteccion')}
+              onClick={() => setPhase(phase === 'deteccion' ? '' : 'deteccion')}
             >
               🔔 Impulso
             </button>
             <button 
               className={phase === 'cediendo' ? 'active' : ''} 
-              onClick={() => setPhase('cediendo')}
+              onClick={() => setPhase(phase === 'cediendo' ? '' : 'cediendo')}
             >
               ⚠️ Cediendo
             </button>
             <button 
               className={phase === 'despues' ? 'active' : ''} 
-              onClick={() => setPhase('despues')}
+              onClick={() => setPhase(phase === 'despues' ? '' : 'despues')}
             >
               🔄 Después
             </button>
@@ -161,25 +161,25 @@ export default function TabAlternatives({ state, updateState, selectedHabit = ''
           <div className="company-buttons">
             <button 
               className={`company-btn solo ${company === 'solo' ? 'active' : ''}`} 
-              onClick={() => setCompany('solo')}
+              onClick={() => setCompany(company === 'solo' ? '' : 'solo')}
             >
               🚨 SOLO
             </button>
             <button 
               className={company === 'familia' ? 'active' : ''} 
-              onClick={() => setCompany('familia')}
+              onClick={() => setCompany(company === 'familia' ? '' : 'familia')}
             >
               👨‍👩‍👧 Familia
             </button>
             <button 
               className={company === 'amigos' ? 'active' : ''} 
-              onClick={() => setCompany('amigos')}
+              onClick={() => setCompany(company === 'amigos' ? '' : 'amigos')}
             >
               👥 Amigos
             </button>
             <button 
               className={company === 'maria' ? 'active' : ''} 
-              onClick={() => setCompany('maria')}
+              onClick={() => setCompany(company === 'maria' ? '' : 'maria')}
             >
               💑 María
             </button>
@@ -191,25 +191,25 @@ export default function TabAlternatives({ state, updateState, selectedHabit = ''
           <div className="location-buttons">
             <button 
               className={location === 'casa' ? 'active' : ''} 
-              onClick={() => setLocation('casa')}
+              onClick={() => setLocation(location === 'casa' ? '' : 'casa')}
             >
               🏠 Casa
             </button>
             <button 
               className={location === 'trabajo' ? 'active' : ''} 
-              onClick={() => setLocation('trabajo')}
+              onClick={() => setLocation(location === 'trabajo' ? '' : 'trabajo')}
             >
               💼 Trabajo
             </button>
             <button 
               className={location === 'calle' ? 'active' : ''} 
-              onClick={() => setLocation('calle')}
+              onClick={() => setLocation(location === 'calle' ? '' : 'calle')}
             >
               🚶 Calle
             </button>
             <button 
               className={location === 'coche' ? 'active' : ''} 
-              onClick={() => setLocation('coche')}
+              onClick={() => setLocation(location === 'coche' ? '' : 'coche')}
             >
               🚗 Coche
             </button>
