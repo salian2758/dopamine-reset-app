@@ -27,11 +27,36 @@ export default function TabToday({ state, updateState, onNavigateToTab }) {
     return 'IV: Legendario';
   }
 
+  const [editingTaskId, setEditingTaskId] = useState(null);
+  const [editText, setEditText] = useState('');
+
   function toggleTask(taskId) {
     const updated = state.dailyTasks.map(t => 
       t.id === taskId ? { ...t, done: !t.done } : t
     );
     updateState({ dailyTasks: updated });
+  }
+
+  function startEditTask(task) {
+    setEditingTaskId(task.id);
+    setEditText(task.text);
+  }
+
+  function saveEditTask(taskId) {
+    if (!editText.trim()) {
+      setEditingTaskId(null);
+      return;
+    }
+    const updated = state.dailyTasks.map(t => 
+      t.id === taskId ? { ...t, text: editText } : t
+    );
+    updateState({ dailyTasks: updated });
+    setEditingTaskId(null);
+  }
+
+  function cancelEditTask() {
+    setEditingTaskId(null);
+    setEditText('');
   }
 
   function addTask() {
@@ -77,30 +102,69 @@ export default function TabToday({ state, updateState, onNavigateToTab }) {
 
       {/* 3 TAREAS DEL DÍA */}
       <div className="tasks-section">
-        <div className="section-title">📌 Tareas del día</div>
+        <div className="section-title">📌 Tareas Prioritarias del Día</div>
+        <p className="section-hint">Clickea para editar. Estas son tus objetivos del día.</p>
         <div className="tasks-list">
-          {state.dailyTasks.map(task => (
-            <div key={task.id} className="task-item">
+          {state.dailyTasks.slice(0, 3).map(task => (
+            <div key={task.id} className={`task-item ${task.done ? 'completed' : ''}`}>
               <input
                 type="checkbox"
                 checked={task.done}
                 onChange={() => toggleTask(task.id)}
               />
-              <span className={task.done ? 'done' : ''}>{task.text}</span>
+              {editingTaskId === task.id ? (
+                <div className="task-edit">
+                  <input
+                    type="text"
+                    value={editText}
+                    onChange={e => setEditText(e.target.value)}
+                    onKeyPress={e => e.key === 'Enter' && saveEditTask(task.id)}
+                    autoFocus
+                  />
+                  <button onClick={() => saveEditTask(task.id)}>✓</button>
+                  <button onClick={cancelEditTask}>✕</button>
+                </div>
+              ) : (
+                <span 
+                  className={`task-text ${task.done ? 'done' : ''}`}
+                  onClick={() => startEditTask(task)}
+                >
+                  {task.text}
+                </span>
+              )}
             </div>
           ))}
         </div>
-        <div className="add-task">
-          <input
-            type="text"
-            placeholder="+ Nueva tarea"
-            value={newTaskText}
-            onChange={e => setNewTaskText(e.target.value)}
-            onKeyPress={e => e.key === 'Enter' && addTask()}
-          />
-          <button onClick={addTask}>+</button>
-        </div>
       </div>
+
+      {/* TAREAS ADICIONALES */}
+      {state.dailyTasks.length > 3 && (
+        <div className="tasks-section">
+          <div className="section-title">📝 Otras Tareas</div>
+          <div className="tasks-list">
+            {state.dailyTasks.slice(3).map(task => (
+              <div key={task.id} className={`task-item ${task.done ? 'completed' : ''}`}>
+                <input
+                  type="checkbox"
+                  checked={task.done}
+                  onChange={() => toggleTask(task.id)}
+                />
+                <span className={task.done ? 'done' : ''}>{task.text}</span>
+              </div>
+            ))}
+          </div>
+          <div className="add-task">
+            <input
+              type="text"
+              placeholder="+ Nueva tarea"
+              value={newTaskText}
+              onChange={e => setNewTaskText(e.target.value)}
+              onKeyPress={e => e.key === 'Enter' && addTask()}
+            />
+            <button onClick={addTask}>+</button>
+          </div>
+        </div>
+      )}
 
       {/* HÁBITOS */}
       <div className="habits-section">
