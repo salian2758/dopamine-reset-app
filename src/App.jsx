@@ -109,8 +109,13 @@ export default function App() {
     <div className="app-container">
       <header className="app-header">
         <div className="header-banner">
-          <div className="header-title">🧒 Tu futuro hijo está mirando</div>
-          <div className="header-subtitle">Capítulo {appState.chapter} • Salud Mental: {appState.mentalHealth}%</div>
+          <div className="header-logo-section">
+            <img src="/logo.svg" alt="Dopamine Reset Logo" className="header-logo" />
+            <div>
+              <div className="header-title">🧒 Tu futuro hijo está mirando</div>
+              <div className="header-subtitle">Capítulo {appState.chapter} • Salud Mental: {appState.mentalHealth}%</div>
+            </div>
+          </div>
         </div>
         <button className="logout-btn" onClick={handleLogout}>Salir</button>
       </header>

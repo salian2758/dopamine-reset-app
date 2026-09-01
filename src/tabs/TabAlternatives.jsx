@@ -1,95 +1,23 @@
 import React, { useState } from 'react';
+import { INTERVENTIONS, TOP_10_UNIVERSAL } from '../interventions-catalog';
 
-const INTERVENTIONS = {
-  "Pornografía": {
-    deteccion: {
-      solo_casa: [
-        { name: "Hielo en cara", desc: "Agua helada. Quiebra trance neurológico.", time: "<5 min", critical: true },
-        { name: "Desactiva internet", desc: "WiFi OFF. Imposible acceder.", time: "1 min", critical: true },
-        { name: "Abre Circuito", desc: "Dopamina REAL > fake.", time: "1 min", critical: true },
-        { name: "Llama a Javier", desc: "Voz real. 'Tengo impulso'.", time: "5 min", critical: true },
-      ],
-      solo_trabajo: [
-        { name: "Agua fría en cara (baño)", desc: "Choque. Reset.", time: "<5 min", critical: true },
-      ],
-      maria_casa: [
-        { name: "Abraza a María", desc: "Contacto físico real.", time: "inmediato" },
-      ],
-    },
-    cediendo: {
-      solo_casa: [
-        { name: "Ducha fría EXTREMA", desc: "Shock vagal total.", time: "3-5 min", critical: true },
-        { name: "Llama a Javier AHORA", desc: "CRISIS. No es débil.", time: "5 min", critical: true },
-        { name: "Llamar a María", desc: "'Necesito ayuda'.", time: "5 min", critical: true },
-      ],
-    },
-    despues: {
-      solo_casa: [
-        { name: "NO reinicies, reconecta", desc: "Error ≠ día perdido.", time: "1 min", critical: true },
-      ],
-    },
-  },
-  "Procrastinación": {
-    deteccion: {
-      solo_casa: [
-        { name: "Una micro-tarea YA", desc: "2 minutos máximo. Momentum.", time: "2 min", critical: true },
-        { name: "Abre Circuito", desc: "Dopamina genuina. START.", time: "1 min", critical: true },
-        { name: "Pon timer 25 min", desc: "Pomodoro. Urgencia real.", time: "1 min", critical: true },
-      ],
-    },
-  },
-  "Pantallas": {
-    deteccion: {
-      solo_casa: [
-        { name: "Móvil FUERA del despacho", desc: "Otro cuarto. Imposible.", time: "1 min", critical: true },
-        { name: "Cierra navegador", desc: "Borra tabs tentadores.", time: "<5 min", critical: true },
-      ],
-    },
-  },
-  "Porros": {
-    deteccion: {
-      solo_casa: [
-        { name: "Hielo en boca", desc: "Sensación sin sustancia. Quiebra.", time: "2 min", critical: true },
-        { name: "Llama a Javier", desc: "'Tengo impulso'.", time: "5 min", critical: true },
-      ],
-    },
-  },
-  "Tabaco": {
-    deteccion: {
-      solo_casa: [
-        { name: "Mint fuerte en boca", desc: "Menta potente.", time: "1 min", critical: true },
-        { name: "Agua muy fría", desc: "Sorbo helado.", time: "2 min", critical: true },
-      ],
-    },
-  },
-  "Onicofagia": {
-    deteccion: {
-      solo_casa: [
-        { name: "Bálsamo mentolado", desc: "Aroma + sabor. Aversión.", time: "inmediato", critical: true },
-        { name: "Fidget toy", desc: "Pop it. Ocupación táctil.", time: "inmediato", critical: true },
-      ],
-    },
-  },
-};
-
-const TOP_10_UNIVERSAL = [
-  { name: "Paseo 5 minutos", desc: "Aire fresco. Reset neurológico.", time: "5 min", critical: true, habits: ["Pornografía", "Procrastinación", "Pantallas", "Porros", "Tabaco"] },
-  { name: "Respiración 4-7-8", desc: "Inhala 4, sostén 7, exhala 8. Vagal reset.", time: "2 min", critical: true, habits: ["Pornografía", "Procrastinación", "Porros", "Tabaco"] },
-  { name: "Escucha música", desc: "Dopamina limpia. Enfoque.", time: "3-5 min", critical: false, habits: ["Procrastinación", "Pantallas", "Porros"] },
-  { name: "Agua fría en cara", desc: "Shock del sistema. Quiebra impulso.", time: "1 min", critical: true, habits: ["Pornografía", "Procrastinación", "Porros"] },
-  { name: "Micro-tarea (2 min)", desc: "Acción inmediata. Momentum.", time: "2 min", critical: true, habits: ["Procrastinación", "Pantallas"] },
-  { name: "Llama a accountability", desc: "'Tengo impulso'. Voz real.", time: "5 min", critical: true, habits: ["Pornografía", "Porros"] },
-  { name: "Cambiar de cuarto", desc: "Rompe contexto. Nuevo circuito.", time: "1 min", critical: true, habits: ["Pornografía", "Pantallas", "Porros"] },
-  { name: "Estiramiento/ejercicio", desc: "Movimiento. Descarga tensión.", time: "3-5 min", critical: false, habits: ["Procrastinación", "Pantallas", "Porros", "Tabaco"] },
-  { name: "Journaling rápido", desc: "Escribe impulso. Comprende trigger.", time: "3 min", critical: false, habits: ["Pornografía", "Procrastinación"] },
-  { name: "Bebe agua", desc: "Hidratación. Reset metabólico.", time: "1 min", critical: false, habits: ["Procrastinación", "Pantallas", "Tabaco"] },
-];
 
 export default function TabAlternatives({ state, updateState, selectedHabit = '' }) {
   const [habit, setHabit] = useState(selectedHabit || '');
   const [phase, setPhase] = useState('');
   const [company, setCompany] = useState('');
   const [location, setLocation] = useState('');
+  const [showAddIntervention, setShowAddIntervention] = useState(false);
+  const [newIntervention, setNewIntervention] = useState({
+    name: '',
+    desc: '',
+    time: '',
+    critical: false,
+    habit: habit || '',
+    phase: phase || 'deteccion',
+    company: company || 'solo',
+    location_new: location || 'casa',
+  });
 
   function getTopUniversal() {
     // TOP 10 universal sin filtros
@@ -108,6 +36,33 @@ export default function TabAlternatives({ state, updateState, selectedHabit = ''
     if (!habit || !phase || !company || !location) return [];
     const key = `${company}_${location}`;
     return INTERVENTIONS[habit]?.[phase]?.[key] || [];
+  }
+
+  function saveNewIntervention() {
+    if (!newIntervention.name || !newIntervention.habit) {
+      alert('Nombre e hábito son obligatorios');
+      return;
+    }
+    
+    // Guardar en state (customInterventions)
+    const customInterventions = state.customInterventions || [];
+    customInterventions.push({
+      ...newIntervention,
+      id: Date.now(),
+    });
+    
+    updateState({ customInterventions });
+    setShowAddIntervention(false);
+    setNewIntervention({
+      name: '',
+      desc: '',
+      time: '',
+      critical: false,
+      habit: habit || '',
+      phase: 'deteccion',
+      company: 'solo',
+      location_new: 'casa',
+    });
   }
 
   const topInterventions = getTopUniversal();
@@ -216,6 +171,64 @@ export default function TabAlternatives({ state, updateState, selectedHabit = ''
           </div>
         </div>
       </div>
+
+      <div className="add-intervention-btn">
+        <button onClick={() => setShowAddIntervention(!showAddIntervention)}>
+          + Agregar intervención
+        </button>
+      </div>
+
+      {showAddIntervention && (
+        <div className="add-intervention-modal">
+          <div className="modal-content">
+            <h3>➕ Nueva Intervención</h3>
+            
+            <input
+              type="text"
+              placeholder="Nombre"
+              value={newIntervention.name}
+              onChange={e => setNewIntervention({...newIntervention, name: e.target.value})}
+            />
+            
+            <textarea
+              placeholder="Descripción"
+              value={newIntervention.desc}
+              onChange={e => setNewIntervention({...newIntervention, desc: e.target.value})}
+            />
+            
+            <input
+              type="text"
+              placeholder="Tiempo (ej: 5 min)"
+              value={newIntervention.time}
+              onChange={e => setNewIntervention({...newIntervention, time: e.target.value})}
+            />
+            
+            <label>
+              <input
+                type="checkbox"
+                checked={newIntervention.critical}
+                onChange={e => setNewIntervention({...newIntervention, critical: e.target.checked})}
+              />
+              Crítica/Urgente
+            </label>
+            
+            <select
+              value={newIntervention.habit}
+              onChange={e => setNewIntervention({...newIntervention, habit: e.target.value})}
+            >
+              <option value="">Selecciona hábito</option>
+              {Object.keys(INTERVENTIONS).map(h => (
+                <option key={h} value={h}>{h}</option>
+              ))}
+            </select>
+            
+            <div className="modal-buttons">
+              <button className="btn-save" onClick={saveNewIntervention}>Guardar</button>
+              <button className="btn-cancel" onClick={() => setShowAddIntervention(false)}>Cancelar</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="interventions-list">
         {topInterventions.length > 0 && (
