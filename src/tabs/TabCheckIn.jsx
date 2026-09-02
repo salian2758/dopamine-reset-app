@@ -33,15 +33,29 @@ export default function TabCheckIn({ state, updateState }) {
       message: generateWitnessMessage(tasksCompleted, answers),
     };
     
-    // Resetear tareas para el nuevo día
-    const resetTasks = state.dailyTasks.map(task => ({...task, done: false}));
+    // NUEVO: Mantener tareas incompletas del día anterior
+    // Separa: incompletas (pasan al siguiente día) y completadas (se resetean)
+    const incompleteTasks = state.dailyTasks.filter(task => !tasksCompleted[task.id]);
+    const completedTasks = state.dailyTasks.filter(task => tasksCompleted[task.id]);
+    
+    // Las tareas completadas se resetean, las incompletas se mantienen en el orden
+    const resetTasks = [
+      ...incompleteTasks, // Incompletas del día anterior (mismo orden)
+      ...completedTasks.map(task => ({...task, done: false})) // Completadas se resetean
+    ];
+    
+    // Calcular salud mental: baja si NO completa tareas
+    const completedCount = Object.values(tasksCompleted).filter(t => t).length;
+    const totalTasks = state.dailyTasks?.length || 3;
+    const mentalHealthChange = completedCount === totalTasks ? 0 : (completedCount === 0 ? -10 : -5);
     
     const newWitnesses = [witness, ...state.witnesses].slice(0, 10);
     updateState({ 
       witnesses: newWitnesses,
       lastCheckIn: new Date().toISOString(),
       totalPoints: (state.totalPoints || 0) + totalPoints,
-      dailyTasks: resetTasks, // Resetear tareas
+      dailyTasks: resetTasks, // Incompletas + completadas reseteadas
+      mentalHealth: Math.max(0, (state.mentalHealth || 50) + mentalHealthChange), // Baja salud mental si no completa
     });
     
     setSubmitted(true);
