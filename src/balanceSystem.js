@@ -272,6 +272,77 @@ SEMANA MIXTA (3 buenos, 3 malos, 1 neutral):
 - Permite "mal día" sin catástrofe
 */
 
+// ===== AUTO-FINALIZAR CHECK-IN =====
+export function autoFinalizeCheckIn(state) {
+  // Función para auto-finalizar check-in si usuario se olvida
+  // Llena con opciones PEORES lo que no respondió
+  
+  if (!state.dailyCheckIn) {
+    return {
+      totalPoints: state.totalPoints || 0,
+      chapter: state.chapter || 'I',
+      mentalHealth: state.mentalHealth || 50,
+      witnesses: state.witnesses || [],
+    };
+  }
+  
+  const { tasksCompleted = {}, answers = {} } = state.dailyCheckIn;
+  
+  // Completar tareas no respondidas con "not-done" (opción peor)
+  const completeTasksCompleted = { ...tasksCompleted };
+  (state.dailyTasks || []).forEach(task => {
+    if (!completeTasksCompleted[task.id]) {
+      completeTasksCompleted[task.id] = 'not-done';
+    }
+  });
+  
+  // Completar hábitos no respondidos con opciones PEORES
+  const completeAnswers = {
+    onicofagia: answers.onicofagia !== null ? answers.onicofagia : -4, // Dañadas
+    pantallas_apps: answers.pantallas_apps !== null ? answers.pantallas_apps : -6, // Sí
+    pantallas_impulso: answers.pantallas_impulso !== null ? answers.pantallas_impulso : -4, // Bastante
+    pornografia: answers.pornografia !== null ? answers.pornografia : -5, // Varias
+    porros: answers.porros !== null ? answers.porros : -5, // Varias
+    tabaco: answers.tabaco !== null ? answers.tabaco : -5, // Varias
+  };
+  
+  // Calcular puntos con valores completados
+  const totalPoints = calculateTotalDayPoints(completeAnswers, completeTasksCompleted);
+  
+  // Calcular salud mental
+  const completedCount = Object.values(completeTasksCompleted).filter(t => t === 'done').length;
+  const failedHabits = Object.values(completeAnswers).filter(a => a < 0).length;
+  const mentalHealthChange = calculateMentalHealthChange(completeTasksCompleted, false, failedHabits);
+  const newMentalHealth = Math.max(0, Math.min(100, (state.mentalHealth || 50) + mentalHealthChange));
+  
+  // Actualizar puntos totales
+  let newTotalPoints = (state.totalPoints || 0) + totalPoints;
+  newTotalPoints = Math.max(0, newTotalPoints);
+  
+  // Validar capítulo
+  const currentChapter = getChapter(state.totalPoints || 0);
+  const newChapter = getChapter(newTotalPoints);
+  let finalChapter = newChapter.chapter;
+  if (getChapterNumber(currentChapter.chapter) > getChapterNumber(newChapter.chapter)) {
+    finalChapter = currentChapter.chapter;
+    newTotalPoints = Math.max(currentChapter.min, newTotalPoints);
+  }
+  
+  // Crear carta testigo
+  const witness = {
+    id: Date.now(),
+    date: new Date().toLocaleDateString('es-ES'),
+    message: `Auto-finalizado (sin responder todos). ${completedCount}/${state.dailyTasks?.length || 3} tareas.`,
+  };
+  
+  return {
+    totalPoints: newTotalPoints,
+    chapter: finalChapter,
+    mentalHealth: newMentalHealth,
+    witnesses: [witness, ...(state.witnesses || [])].slice(0, 10),
+  };
+}
+
 export default {
   POINTS_SYSTEM,
   MENTAL_HEALTH,
@@ -280,4 +351,5 @@ export default {
   LEVEL_SYSTEM,
   validateCheckIn,
   getChapter,
+  autoFinalizeCheckIn,
 };

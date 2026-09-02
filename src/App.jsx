@@ -4,6 +4,7 @@ import { auth, db } from './firebase';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { getHeaderMessage } from './messages';
 import { shouldApplyDefaultFailure, applyDefaultFailure } from './checkInManager';
+import { autoFinalizeCheckIn } from './balanceSystem';
 import './App.css';
 import Login from './Login';
 import Settings from './Settings';
@@ -37,7 +38,31 @@ export default function App() {
           if (userData.totalPoints < 0) userData.totalPoints = 0;
           if (userData.mentalHealth < 0) userData.mentalHealth = 0;
           if (userData.mentalHealth > 100) userData.mentalHealth = 100;
+          
+          // Auto-finalizar check-in de ayer si se olvidó
+          const today = new Date().toISOString().split('T')[0];
+          const lastCheckInDate = userData.lastCheckIn?.split('T')[0];
+          
+          let shouldSave = false;
+          if (userData.dailyCheckIn && lastCheckInDate !== today) {
+            // Hay un check-in sin finalizar de un día anterior
+            // Auto-finalizar con opciones peores
+            const auto = autoFinalizeCheckIn(userData);
+            userData.totalPoints = auto.totalPoints;
+            userData.chapter = auto.chapter;
+            userData.mentalHealth = auto.mentalHealth;
+            userData.dailyCheckIn = null;
+            userData.lastCheckIn = new Date().toISOString();
+            userData.witnesses = auto.witnesses;
+            shouldSave = true;
+          }
+          
           setAppState(userData);
+          
+          // Guardar en Firestore si hay cambios
+          if (shouldSave) {
+            await setDoc(userDocRef, userData, { merge: true });
+          }
         } else {
           // Primer login: crear documento
           const initialState = getInitialState();

@@ -2,6 +2,10 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 :root {
@@ -21,6 +25,11 @@ body {
   background: var(--bg-0);
   color: var(--text-primary);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+input, textarea, button {
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 .app-container {
@@ -1072,6 +1081,8 @@ body {
   display: flex;
   gap: 8px;
   flex: 1;
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 .task-edit input {
@@ -1082,6 +1093,8 @@ body {
   padding: 8px 12px;
   border-radius: 6px;
   font-size: 14px;
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 .task-edit button {
