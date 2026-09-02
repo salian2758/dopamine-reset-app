@@ -1,0 +1,71 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+    
+    <filter id="logoGlow">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <clipPath id="resetCircle">
+      <circle cx="100" cy="100" r="95"/>
+    </clipPath>
+  </defs>
+
+  <!-- Fondo sutíl -->
+  <circle cx="100" cy="100" r="98" fill="none" stroke="url(#logoGrad)" stroke-width="0.5" opacity="0.3"/>
+
+  <!-- MOLÉCULA CENTRAL (3 átomos) -->
+  
+  <!-- Átomo izquierdo (base) -->
+  <circle cx="65" cy="105" r="16" fill="url(#logoGrad)" opacity="0.9" filter="url(#logoGlow)"/>
+  <circle cx="65" cy="105" r="10" fill="none" stroke="url(#logoGrad)" stroke-width="1.5" opacity="0.5"/>
+  
+  <!-- Átomo central (núcleo) -->
+  <circle cx="100" cy="75" r="18" fill="url(#logoGrad)" opacity="1" filter="url(#logoGlow)"/>
+  <circle cx="100" cy="75" r="12" fill="none" stroke="url(#logoGrad)" stroke-width="1.5" opacity="0.6"/>
+  
+  <!-- Átomo derecho (ascendente) -->
+  <circle cx="135" cy="105" r="14" fill="url(#logoGrad)" opacity="0.85" filter="url(#logoGlow)"/>
+  <circle cx="135" cy="105" r="8" fill="none" stroke="url(#logoGrad)" stroke-width="1.5" opacity="0.5"/>
+
+  <!-- CONEXIONES (bonds) -->
+  <line x1="78" y1="100" x2="88" y2="84" stroke="url(#logoGrad)" stroke-width="2.5" stroke-linecap="round" opacity="0.8"/>
+  <line x1="114" y1="87" x2="125" y2="100" stroke="url(#logoGrad)" stroke-width="2.5" stroke-linecap="round" opacity="0.8"/>
+
+  <!-- ESPIRAL DE RESET (ascendente) -->
+  <g opacity="0.9">
+    <!-- Espiral como path suave -->
+    <path d="M 100 145 Q 110 140, 115 130 Q 118 115, 112 105" 
+          stroke="url(#logoGrad)" 
+          stroke-width="2.5" 
+          fill="none" 
+          stroke-linecap="round"
+          stroke-linejoin="round"/>
+    
+    <!-- Flecha del reset (punta) -->
+    <polygon points="112,105 105,98 110,115" fill="url(#logoGrad)" opacity="0.95"/>
+  </g>
+
+  <!-- ENERGÍA/CRECIMIENTO - líneas de ascenso -->
+  <g opacity="0.6">
+    <line x1="100" y1="155" x2="100" y2="145" stroke="url(#logoGrad)" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="95" y1="160" x2="100" y2="150" stroke="url(#logoGrad)" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="105" y1="160" x2="100" y2="150" stroke="url(#logoGrad)" stroke-width="1.5" stroke-linecap="round"/>
+  </g>
+
+  <!-- PUNTO CENTRAL (el spark, la chispa de cambio) -->
+  <circle cx="100" cy="75" r="5" fill="url(#logoGrad)" opacity="0.95"/>
+  
+  <!-- Pulsación sutil del núcleo -->
+  <circle cx="100" cy="75" r="8" fill="none" stroke="url(#logoGrad)" stroke-width="1" opacity="0.4">
+    <animate attributeName="r" values="8;12;8" dur="2.5s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-width" values="1;0.5;1" dur="2.5s" repeatCount="indefinite"/>
+  </circle>
+</svg>

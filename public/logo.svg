@@ -1,0 +1,59 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="dopamineGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+    
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="1.5"/>
+    </filter>
+  </defs>
+
+  <!-- MOLÉCULA DE DOPAMINA - 3 círculos conectados -->
+  
+  <!-- Círculo Izquierdo (menor) -->
+  <circle cx="55" cy="110" r="14" fill="url(#dopamineGradient)" opacity="0.85" filter="url(#glow)"/>
+  
+  <!-- Círculo Central (mayor - núcleo) -->
+  <circle cx="100" cy="70" r="18" fill="url(#dopamineGradient)" opacity="1" filter="url(#glow)"/>
+  
+  <!-- Círculo Derecho (ascendente) -->
+  <circle cx="145" cy="110" r="14" fill="url(#dopamineGradient)" opacity="0.9" filter="url(#glow)"/>
+
+  <!-- Conexiones (enlaces químicos) -->
+  <line x1="70" y1="100" x2="87" y2="82" stroke="url(#dopamineGradient)" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+  <line x1="113" y1="87" x2="131" y2="100" stroke="url(#dopamineGradient)" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+
+  <!-- RESET SPIRAL (ascendente y renovable) -->
+  <g opacity="0.95">
+    <!-- Línea de reset en espiral suave -->
+    <path d="M 100 150 Q 115 138, 122 120 Q 125 105, 118 95" 
+          stroke="url(#dopamineGradient)" 
+          stroke-width="2.5" 
+          fill="none" 
+          stroke-linecap="round"/>
+    
+    <!-- Punta de flecha (crecimiento) -->
+    <polygon points="118,95 109,88 115,110" fill="url(#dopamineGradient)"/>
+  </g>
+
+  <!-- LÍNEAS DE CRECIMIENTO (3 rayos diagonales ascendentes) -->
+  <g opacity="0.5" stroke="url(#dopamineGradient)" stroke-width="1.5" stroke-linecap="round">
+    <line x1="95" y1="160" x2="92" y2="145"/>
+    <line x1="100" y1="165" x2="100" y2="150"/>
+    <line x1="105" y1="160" x2="108" y2="145"/>
+  </g>
+
+  <!-- PUNTO CENTRAL PULSANTE (la chispa de transformación) -->
+  <circle cx="100" cy="70" r="6" fill="url(#dopamineGradient)" opacity="0.95"/>
+  
+  <!-- Pulsación sutil -->
+  <circle cx="100" cy="70" r="6" fill="none" stroke="url(#dopamineGradient)" stroke-width="1" opacity="0.3">
+    <animate attributeName="r" values="6;11;6" dur="3s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-width" values="1;0.5;1" dur="3s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- SUGERENCIA DE CÍRCULO (regulación, ciclicidad) -->
+  <circle cx="100" cy="100" r="92" fill="none" stroke="url(#dopamineGradient)" stroke-width="0.8" opacity="0.2"/>
+</svg>
