@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getWitnessMessage } from '../messages';
 
 export default function TabCheckIn({ state, updateState }) {
   const [step, setStep] = useState('tasks');
@@ -27,10 +28,16 @@ export default function TabCheckIn({ state, updateState }) {
   function handleSubmit() {
     const totalPoints = calculatePoints(answers, tasksCompleted);
     
+    // Calcular salud mental y completadas para mensaje dinámico
+    const completedCount = Object.values(tasksCompleted).filter(t => t).length;
+    const totalTasks = state.dailyTasks?.length || 3;
+    const mentalHealthChange = completedCount === totalTasks ? 0 : (completedCount === 0 ? -10 : -5);
+    const newMentalHealth = Math.max(0, (state.mentalHealth || 50) + mentalHealthChange);
+    
     const witness = {
       id: Date.now(),
       date: new Date().toLocaleDateString('es-ES'),
-      message: generateWitnessMessage(tasksCompleted, answers),
+      message: getWitnessMessage(completedCount, totalTasks, newMentalHealth, false),
     };
     
     // NUEVO: Mantener tareas incompletas del día anterior
@@ -44,18 +51,13 @@ export default function TabCheckIn({ state, updateState }) {
       ...completedTasks.map(task => ({...task, done: false})) // Completadas se resetean
     ];
     
-    // Calcular salud mental: baja si NO completa tareas
-    const completedCount = Object.values(tasksCompleted).filter(t => t).length;
-    const totalTasks = state.dailyTasks?.length || 3;
-    const mentalHealthChange = completedCount === totalTasks ? 0 : (completedCount === 0 ? -10 : -5);
-    
     const newWitnesses = [witness, ...state.witnesses].slice(0, 10);
     updateState({ 
       witnesses: newWitnesses,
       lastCheckIn: new Date().toISOString(),
       totalPoints: (state.totalPoints || 0) + totalPoints,
       dailyTasks: resetTasks, // Incompletas + completadas reseteadas
-      mentalHealth: Math.max(0, (state.mentalHealth || 50) + mentalHealthChange), // Baja salud mental si no completa
+      mentalHealth: newMentalHealth, // Usar newMentalHealth ya calculado
     });
     
     setSubmitted(true);

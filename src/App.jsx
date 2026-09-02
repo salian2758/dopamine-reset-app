@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth, db } from './firebase';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { getHeaderMessage } from './messages';
 import './App.css';
 import Login from './Login';
 import TabToday from './tabs/TabToday';
@@ -16,6 +17,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('today');
   const [appState, setAppState] = useState(null);
   const [selectedHabitForAlternatives, setSelectedHabitForAlternatives] = useState(null);
+  const [headerMessage, setHeaderMessage] = useState('🧒 Tu futuro hijo está mirando');
 
   // Escuchar cambios de autenticación
   useEffect(() => {
@@ -40,6 +42,14 @@ export default function App() {
 
     return unsubscribe;
   }, []);
+
+  // Actualizar mensaje del header cuando cambia el capítulo
+  useEffect(() => {
+    if (appState) {
+      const chapterNum = parseInt(appState.chapter) || 1;
+      setHeaderMessage(getHeaderMessage(chapterNum));
+    }
+  }, [appState?.chapter]);
 
   function getInitialState() {
     return {
@@ -112,7 +122,7 @@ export default function App() {
           <div className="header-logo-section">
             <img src="/logo.svg" alt="Dopamine Reset Logo" className="header-logo" />
             <div>
-              <div className="header-title">🧒 Tu futuro hijo está mirando</div>
+              <div className="header-title">{headerMessage}</div>
               <div className="header-subtitle">Capítulo {appState.chapter} • Salud Mental: {appState.mentalHealth}%</div>
             </div>
           </div>
