@@ -346,7 +346,7 @@ export default function TabCheckIn({ state, updateState }) {
 
           {/* Pantallas Apps */}
           <div className="habit-section">
-            <h4>¿Instalaste apps nuevas hoy?</h4>
+            <h4>📱 Pantallas (Prevención): ¿Instalaste apps o pusiste contenido nuevo en el móvil?</h4>
             {answeredQuestions.has('pantallas_apps') && (
               <div className="answered-badge">✓ Ya respondida</div>
             )}
@@ -368,9 +368,9 @@ export default function TabCheckIn({ state, updateState }) {
             </div>
           </div>
 
-          {/* Pantallas Impulso */}
+          {/* Pantallas Control */}
           <div className="habit-section">
-            <h4>¿Cambiaste de actividad impulsivamente sin poder parar?</h4>
+            <h4>📱 Pantallas (Control): ¿Cuando usaste el móvil, lo tuviste controlado?</h4>
             {answeredQuestions.has('pantallas_impulso') && (
               <div className="answered-badge">✓ Ya respondida</div>
             )}
@@ -380,21 +380,21 @@ export default function TabCheckIn({ state, updateState }) {
                 onClick={() => handleAnswerHabit('pantallas_impulso', -4)}
                 disabled={answeredQuestions.has('pantallas_impulso') && answers.pantallas_impulso !== -4}
               >
-                Bastante (-4)
+                No, perdí control (-4)
               </button>
               <button
                 className={`habit-btn ${answers.pantallas_impulso === 0 ? 'active warning' : ''} ${answeredQuestions.has('pantallas_impulso') ? 'disabled' : ''}`}
                 onClick={() => handleAnswerHabit('pantallas_impulso', 0)}
                 disabled={answeredQuestions.has('pantallas_impulso') && answers.pantallas_impulso !== 0}
               >
-                Un poco (0)
+                Distracciones (0)
               </button>
               <button
                 className={`habit-btn ${answers.pantallas_impulso === 5 ? 'active excellent' : ''} ${answeredQuestions.has('pantallas_impulso') ? 'disabled' : ''}`}
                 onClick={() => handleAnswerHabit('pantallas_impulso', 5)}
                 disabled={answeredQuestions.has('pantallas_impulso') && answers.pantallas_impulso !== 5}
               >
-                No (+5)
+                Muy controlado (+5)
               </button>
             </div>
           </div>
