@@ -27,7 +27,7 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
-input, textarea, button {
+textarea {
   user-select: text;
   -webkit-user-select: text;
 }
@@ -135,6 +135,10 @@ input, textarea, button {
   line-height: 1.2;
   color: #ffffff;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  max-width: 100%;
 }
 
 .header-subtitle {
@@ -1380,43 +1384,23 @@ input, textarea, button {
   animation: float 3s ease-in-out infinite;
 }
 
-.logo-wrapper {
-  position: relative;
-  width: 48px;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.settings-btn-logo {
-  position: absolute;
-  top: -4px;
-  right: -4px;
-  background: var(--bg-2);
-  border: 1.5px solid var(--border);
-  color: var(--text-primary);
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
+.logo-button {
+  background: none;
+  border: none;
+  padding: 0;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
-  transition: all 0.2s;
-  padding: 0;
-  user-select: none;
-  -webkit-user-select: none;
+  flex-shrink: 0;
+  transition: transform 0.2s;
 }
 
-.settings-btn-logo:hover {
-  background: var(--primary);
-  border-color: var(--primary);
+.logo-button:hover {
   transform: scale(1.1);
 }
 
-.settings-btn-logo:active {
+.logo-button:active {
   transform: scale(0.95);
 }
 
