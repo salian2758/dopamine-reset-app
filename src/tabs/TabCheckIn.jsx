@@ -113,6 +113,16 @@ export default function TabCheckIn({ state, updateState }) {
   }
 
   function handleFinalizeCheckIn() {
+    // BLOQUEO ANTI-CHEAT: verificar si ya se finalizó hoy
+    const today = new Date().toDateString(); // "Wed Sep 02 2026"
+    const lastCheckInDate = state.lastCheckInFinalized ? new Date(state.lastCheckInFinalized).toDateString() : null;
+    
+    if (lastCheckInDate === today) {
+      console.warn('⛔ YA FINALIZASTE HOY. No puedes finalizar 2 veces en el mismo día.');
+      alert('Ya finalizaste tu check-in hoy. Vuelve mañana para continuar.');
+      return; // BLOQUEAR
+    }
+    
     console.log('🟢 FINALIZANDO CHECK-IN'); // DEBUG
     console.log('tasksCompleted:', tasksCompleted);
     console.log('answers:', answers);
@@ -141,7 +151,7 @@ export default function TabCheckIn({ state, updateState }) {
     };
     
     const newWitnesses = [witness, ...state.witnesses].slice(0, 10);
-    const today = new Date().toISOString();
+    const todayISO = new Date().toISOString();
     
     // Calcular nuevos puntos totales, pero con mínimo 0
     let newTotalPoints = (state.totalPoints || 0) + totalPoints;
@@ -163,7 +173,7 @@ export default function TabCheckIn({ state, updateState }) {
     
     // Guardar último check-in completado para referencia
     const completedCheckIn = {
-      date: today,
+      date: todayISO,
       tasksCompleted,
       answers,
       points: totalPoints,
@@ -183,7 +193,8 @@ export default function TabCheckIn({ state, updateState }) {
     
     const updatePayload = {
       witnesses: newWitnesses,
-      lastCheckIn: today,
+      lastCheckIn: todayISO,
+      lastCheckInFinalized: todayISO, // NUEVO: timestamp de cuando se finalizó
       totalPoints: newTotalPoints,
       chapter: finalChapter,
       mentalHealth: newMentalHealth,
@@ -296,7 +307,15 @@ export default function TabCheckIn({ state, updateState }) {
             </div>
           </div>
 
-          <button className="btn-primary" onClick={handleNextStep}>
+          <button 
+            className="btn-primary" 
+            onClick={(e) => {
+              console.log('🔴 BOTÓN SIGUIENTE PRESIONADO EXPLÍCITAMENTE POR USUARIO');
+              e.preventDefault();
+              e.stopPropagation();
+              handleNextStep();
+            }}
+          >
             Siguiente: Hábitos
           </button>
         </div>
