@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getWitnessMessage } from '../messages';
-import { calculateTotalDayPoints, calculateMentalHealthChange, getChapter } from '../balanceSystem';
+import { calculateTotalDayPoints, calculateMentalHealthChange, getChapter, getChapterNumber } from '../balanceSystem';
 
 export default function TabCheckIn({ state, updateState }) {
   const [checkInState, setCheckInState] = useState(null);
@@ -51,10 +51,11 @@ export default function TabCheckIn({ state, updateState }) {
     }
   }, [state?.dailyCheckIn]); // Dependencia SOLO de dailyCheckIn, no de dailyTasks
 
-  function handleTaskToggle(taskId) {
+  function handleTaskOption(taskId, option) {
+    // option: 'done' | 'not-done'
     const newTasksCompleted = {
       ...tasksCompleted,
-      [taskId]: !tasksCompleted[taskId],
+      [taskId]: option,
     };
     setTasksCompleted(newTasksCompleted);
     
@@ -113,7 +114,7 @@ export default function TabCheckIn({ state, updateState }) {
     const totalPoints = calculatePoints(answers, tasksCompleted);
     
     // Calcular salud mental con nuevo sistema
-    const completedCount = Object.values(tasksCompleted).filter(t => t).length;
+    const completedCount = Object.values(tasksCompleted).filter(t => t === 'done').length;
     const totalTasks = state.dailyTasks?.length || 3;
     
     // Contar hábitos fallados para penalización
@@ -130,9 +131,21 @@ export default function TabCheckIn({ state, updateState }) {
     const newWitnesses = [witness, ...state.witnesses].slice(0, 10);
     const today = new Date().toISOString();
     
-    // Actualizar capítulo automáticamente
-    const newTotalPoints = (state.totalPoints || 0) + totalPoints;
-    const chapterInfo = getChapter(newTotalPoints);
+    // Calcular nuevos puntos totales, pero con mínimo 0
+    let newTotalPoints = (state.totalPoints || 0) + totalPoints;
+    newTotalPoints = Math.max(0, newTotalPoints);
+    
+    // Obtener capítulo actual y nuevo
+    const currentChapter = getChapter(state.totalPoints || 0);
+    const newChapter = getChapter(newTotalPoints);
+    
+    // NO permitir bajar de capítulo
+    let finalChapter = newChapter.chapter;
+    if (getChapterNumber(currentChapter.chapter) > getChapterNumber(newChapter.chapter)) {
+      finalChapter = currentChapter.chapter;
+      // Mantener los puntos dentro del capítulo actual
+      newTotalPoints = Math.max(currentChapter.min, newTotalPoints);
+    }
     
     // Guardar último check-in completado para referencia
     const completedCheckIn = {
@@ -150,7 +163,7 @@ export default function TabCheckIn({ state, updateState }) {
       witnesses: newWitnesses,
       lastCheckIn: today,
       totalPoints: newTotalPoints,
-      chapter: chapterInfo.chapter,
+      chapter: finalChapter,
       mentalHealth: newMentalHealth,
       lastCompletedCheckIn: completedCheckIn,
       dailyCheckIn: null, // Listo para nuevo check-in mañana
@@ -189,7 +202,7 @@ export default function TabCheckIn({ state, updateState }) {
     );
   }
 
-  const tasksCompleteCount = Object.values(tasksCompleted).filter(t => t).length;
+  const tasksCompleteCount = Object.values(tasksCompleted).filter(t => t === 'done').length;
   const totalTasks = state.dailyTasks?.length || 3;
 
   return (
@@ -207,17 +220,37 @@ export default function TabCheckIn({ state, updateState }) {
           <div className="tasks-section">
             <p className="section-info">✅ Marca tareas completadas hoy:</p>
             {state.dailyTasks && state.dailyTasks.length > 0 ? (
-              state.dailyTasks.map(task => (
-                <div key={task.id} className="task-item">
-                  <input
-                    type="checkbox"
-                    checked={tasksCompleted[task.id] || false}
-                    onChange={() => handleTaskToggle(task.id)}
-                    id={`task-${task.id}`}
-                  />
-                  <label htmlFor={`task-${task.id}`}>{task.name || `Tarea ${task.id}`}</label>
-                </div>
-              ))
+              state.dailyTasks.map(task => {
+                // Determinar puntos para cada tarea
+                let donePoints, notDonePoints;
+                if (task.id === 1) {
+                  donePoints = 12; notDonePoints = -8;
+                } else if (task.id === 2) {
+                  donePoints = 5; notDonePoints = -5;
+                } else {
+                  donePoints = 2; notDonePoints = -2;
+                }
+                
+                return (
+                  <div key={task.id} className="task-habit-section">
+                    <h4>{task.name || `Tarea ${task.id}`}</h4>
+                    <div className="habit-options two-col">
+                      <button
+                        className={`habit-btn ${tasksCompleted[task.id] === 'done' ? 'active excellent' : ''}`}
+                        onClick={() => handleTaskOption(task.id, 'done')}
+                      >
+                        Hecha (+{donePoints})
+                      </button>
+                      <button
+                        className={`habit-btn ${tasksCompleted[task.id] === 'not-done' ? 'active critical' : ''}`}
+                        onClick={() => handleTaskOption(task.id, 'not-done')}
+                      >
+                        No hecha ({notDonePoints})
+                      </button>
+                    </div>
+                  </div>
+                );
+              })
             ) : (
               <p className="no-tasks">No hay tareas para hoy.</p>
             )}

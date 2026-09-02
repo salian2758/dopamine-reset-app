@@ -151,30 +151,43 @@ export function calculateHabitPoints(habit, answer) {
 }
 
 export function calculateTasksPoints(tasksCompleted) {
-  if (!tasksCompleted) return POINTS_SYSTEM.tasks.complete_none;
+  if (!tasksCompleted) return 0;
   
-  const completed = Object.values(tasksCompleted).filter(t => t).length;
-  const total = Object.keys(tasksCompleted).length;
+  let totalPoints = 0;
   
-  if (completed === total) return POINTS_SYSTEM.tasks.complete_all;
-  if (completed === total - 1) return POINTS_SYSTEM.tasks.complete_two;
-  if (completed === 1) return POINTS_SYSTEM.tasks.complete_one;
-  return POINTS_SYSTEM.tasks.complete_none;
+  // Puntos por tarea individual
+  const taskPoints = {
+    1: { done: 12, notDone: -8 },
+    2: { done: 5, notDone: -5 },
+    3: { done: 2, notDone: -2 },
+  };
+  
+  Object.entries(tasksCompleted).forEach(([taskId, option]) => {
+    const id = parseInt(taskId);
+    if (option === 'done') {
+      totalPoints += taskPoints[id]?.done || 0;
+    } else if (option === 'not-done') {
+      totalPoints += taskPoints[id]?.notDone || 0;
+    }
+    // Si null o no respondida, 0 puntos (neutral)
+  });
+  
+  return totalPoints;
 }
 
 export function calculateMentalHealthChange(tasksCompleted, allHabitsBest = false, failedHabits = 0) {
   if (!tasksCompleted) return MENTAL_HEALTH.noTasksDone;
   
-  const completed = Object.values(tasksCompleted).filter(t => t).length;
+  const done = Object.values(tasksCompleted).filter(t => t === 'done').length;
   const total = Object.keys(tasksCompleted).length;
   
   let change = 0;
   
-  if (completed === total) {
+  if (done === total) {
     change += MENTAL_HEALTH.allTasksDone;
-  } else if (completed === total - 1) {
+  } else if (done === total - 1) {
     change += MENTAL_HEALTH.twoTasksDone;
-  } else if (completed === 1) {
+  } else if (done >= 1) {
     change += MENTAL_HEALTH.oneTaskDone;
   } else {
     change += MENTAL_HEALTH.noTasksDone;
