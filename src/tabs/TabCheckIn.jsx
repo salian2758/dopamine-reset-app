@@ -40,14 +40,16 @@ export default function TabCheckIn({ state, updateState }) {
   // Inicializar tasksCompleted desde dailyTasks (si no hay dailyCheckIn aún)
   useEffect(() => {
     if (!state?.dailyCheckIn && state?.dailyTasks && state.dailyTasks.length > 0) {
-      // Crear objeto de tareas completadas: { 1: false, 2: false, 3: false, ... }
-      const initialTasks = {};
-      state.dailyTasks.forEach(task => {
-        initialTasks[task.id] = false;
-      });
-      setTasksCompleted(initialTasks);
+      // SOLO inicializar si tasksCompleted está vacío
+      if (Object.keys(tasksCompleted).length === 0) {
+        const initialTasks = {};
+        state.dailyTasks.forEach(task => {
+          initialTasks[task.id] = false;
+        });
+        setTasksCompleted(initialTasks);
+      }
     }
-  }, [state?.dailyTasks, state?.dailyCheckIn]);
+  }, [state?.dailyCheckIn]); // Dependencia SOLO de dailyCheckIn, no de dailyTasks
 
   function handleTaskToggle(taskId) {
     const newTasksCompleted = {
@@ -58,17 +60,6 @@ export default function TabCheckIn({ state, updateState }) {
     
     // Guardar tareas inmediatamente
     updateCheckInProgress({ tasksCompleted: newTasksCompleted });
-  }
-
-  function handleUpdateTaskName(taskId, newName) {
-    // Actualizar el nombre de la tarea en state.dailyTasks
-    const updatedTasks = state.dailyTasks.map(task =>
-      task.id === taskId ? { ...task, name: newName } : task
-    );
-    
-    updateState({
-      dailyTasks: updatedTasks,
-    });
   }
 
   function handleAnswerHabit(question, answer) {
@@ -224,13 +215,7 @@ export default function TabCheckIn({ state, updateState }) {
                     onChange={() => handleTaskToggle(task.id)}
                     id={`task-${task.id}`}
                   />
-                  <input
-                    type="text"
-                    value={task.name || `Tarea ${task.id}`}
-                    onChange={(e) => handleUpdateTaskName(task.id, e.target.value)}
-                    className="task-name-input"
-                    placeholder={`Tarea ${task.id}`}
-                  />
+                  <label htmlFor={`task-${task.id}`}>{task.name || `Tarea ${task.id}`}</label>
                 </div>
               ))
             ) : (

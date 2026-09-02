@@ -315,23 +315,10 @@ body {
   flex-shrink: 0;
 }
 
-.task-name-input {
+.task-item label {
   flex: 1;
-  background: transparent;
-  border: 1px solid transparent;
-  border-radius: 4px;
-  padding: 4px 6px;
-  color: var(--text-primary);
+  cursor: pointer;
   font-size: 13px;
-  font-family: inherit;
-  cursor: text;
-  transition: border-color 0.2s;
-}
-
-.task-name-input:focus {
-  outline: none;
-  border-color: var(--primary);
-  background: rgba(102, 126, 234, 0.1);
 }
 
 .task-item span.done {
