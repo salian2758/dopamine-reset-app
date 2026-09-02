@@ -78,6 +78,9 @@ export default function TabSOS({ state, updateState }) {
             <div className="action">💧 Agua helada en cara</div>
             <div className="action">🏃 Corre / Salta ahora</div>
             <div className="action">💑 Llama a María</div>
+            <div className="action">☎️ Llama un amigo de confianza</div>
+            <div className="action">👨‍👩‍👧 Llama un familiar</div>
+            <div className="action">🎯 Llama accountability partner</div>
             <div className="action">🚿 Ducha fría extrema</div>
             <div className="action">💪 Flexiones hasta sudar</div>
           </div>
