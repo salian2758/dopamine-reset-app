@@ -44,7 +44,7 @@ export default function TabCheckIn({ state, updateState }) {
       if (Object.keys(tasksCompleted).length === 0) {
         const initialTasks = {};
         state.dailyTasks.forEach(task => {
-          initialTasks[task.id] = false;
+          initialTasks[task.id] = null; // null = sin responder, 'done' = hecha, 'not-done' = no hecha
         });
         setTasksCompleted(initialTasks);
       }
@@ -159,6 +159,12 @@ export default function TabCheckIn({ state, updateState }) {
     // Guardar que se completó el check-in de hoy
     // dailyCheckIn se resetea a null para un nuevo check-in mañana
     // Pero las tareas permanecen en dailyTasks
+    // Actualizar dailyTasks con el estado del check-in
+    const updatedDailyTasks = state.dailyTasks.map(task => ({
+      ...task,
+      done: tasksCompleted[task.id] === 'done' ? true : false,
+    }));
+    
     updateState({
       witnesses: newWitnesses,
       lastCheckIn: today,
@@ -167,6 +173,7 @@ export default function TabCheckIn({ state, updateState }) {
       mentalHealth: newMentalHealth,
       lastCompletedCheckIn: completedCheckIn,
       dailyCheckIn: null, // Listo para nuevo check-in mañana
+      dailyTasks: updatedDailyTasks, // Sincronizar tareas
     });
     
     setSubmitted(true);

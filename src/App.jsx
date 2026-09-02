@@ -32,7 +32,12 @@ export default function App() {
         const userDoc = await getDoc(userDocRef);
         
         if (userDoc.exists()) {
-          setAppState(userDoc.data());
+          const userData = userDoc.data();
+          // Confinar puntos y salud mental a mínimos
+          if (userData.totalPoints < 0) userData.totalPoints = 0;
+          if (userData.mentalHealth < 0) userData.mentalHealth = 0;
+          if (userData.mentalHealth > 100) userData.mentalHealth = 100;
+          setAppState(userData);
         } else {
           // Primer login: crear documento
           const initialState = getInitialState();

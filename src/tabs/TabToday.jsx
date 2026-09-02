@@ -123,14 +123,23 @@ export default function TabToday({ state, updateState, onNavigateToTab }) {
         <p className="section-hint">Clickea para editar. Estas son tus objetivos del día.</p>
         <div className="tasks-list">
           {state.dailyTasks.slice(0, 3).map(task => (
-            <div key={task.id} className={`task-item ${task.done ? 'completed' : ''}`}>
+            <div 
+              key={task.id} 
+              className={`task-item ${task.done ? 'completed' : ''}`}
+              onClick={() => {
+                if (editingTaskId !== task.id) {
+                  startEditTask(task);
+                }
+              }}
+            >
               <input
                 type="checkbox"
                 checked={task.done}
                 onChange={() => toggleTask(task.id)}
+                onClick={e => e.stopPropagation()}
               />
               {editingTaskId === task.id ? (
-                <div className="task-edit">
+                <div className="task-edit" onClick={e => e.stopPropagation()}>
                   <input
                     type="text"
                     value={editText}
@@ -144,7 +153,6 @@ export default function TabToday({ state, updateState, onNavigateToTab }) {
               ) : (
                 <span 
                   className={`task-text ${task.done ? 'done' : ''}`}
-                  onClick={() => startEditTask(task)}
                 >
                   {task.name}
                 </span>
