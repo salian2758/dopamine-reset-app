@@ -39,7 +39,7 @@ export default function TabToday({ state, updateState, onNavigateToTab }) {
 
   function startEditTask(task) {
     setEditingTaskId(task.id);
-    setEditText(task.text);
+    setEditText(task.name);
   }
 
   function saveEditTask(taskId) {
@@ -48,7 +48,7 @@ export default function TabToday({ state, updateState, onNavigateToTab }) {
       return;
     }
     const updated = state.dailyTasks.map(t => 
-      t.id === taskId ? { ...t, text: editText } : t
+      t.id === taskId ? { ...t, name: editText } : t
     );
     updateState({ dailyTasks: updated });
     setEditingTaskId(null);
@@ -63,7 +63,7 @@ export default function TabToday({ state, updateState, onNavigateToTab }) {
     if (!newTaskText.trim()) return;
     const newTask = {
       id: Math.max(...state.dailyTasks.map(t => t.id), 0) + 1,
-      text: newTaskText,
+      name: newTaskText,
       done: false,
     };
     updateState({ dailyTasks: [...state.dailyTasks, newTask] });
@@ -129,7 +129,7 @@ export default function TabToday({ state, updateState, onNavigateToTab }) {
                   className={`task-text ${task.done ? 'done' : ''}`}
                   onClick={() => startEditTask(task)}
                 >
-                  {task.text}
+                  {task.name}
                 </span>
               )}
             </div>
@@ -149,7 +149,7 @@ export default function TabToday({ state, updateState, onNavigateToTab }) {
                   checked={task.done}
                   onChange={() => toggleTask(task.id)}
                 />
-                <span className={task.done ? 'done' : ''}>{task.text}</span>
+                <span className={task.done ? 'done' : ''}>{task.name}</span>
               </div>
             ))}
           </div>

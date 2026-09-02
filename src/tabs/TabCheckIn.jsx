@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { getWitnessMessage } from '../messages';
 
 export default function TabCheckIn({ state, updateState }) {
-  const [step, setStep] = useState('tasks');
+  const [checkInState, setCheckInState] = useState(null);
+  const [currentStep, setCurrentStep] = useState('tasks');
   const [tasksCompleted, setTasksCompleted] = useState({});
   const [answers, setAnswers] = useState({
     onicofagia: null,
@@ -13,131 +14,154 @@ export default function TabCheckIn({ state, updateState }) {
     tabaco: null,
   });
   const [submitted, setSubmitted] = useState(false);
+  const [answeredQuestions, setAnsweredQuestions] = useState(new Set());
+
+  // Cargar check-in del día actual desde Firestore
+  useEffect(() => {
+    if (state?.dailyCheckIn) {
+      setCheckInState(state.dailyCheckIn);
+      if (state.dailyCheckIn.tasksCompleted) {
+        setTasksCompleted(state.dailyCheckIn.tasksCompleted);
+      }
+      if (state.dailyCheckIn.answers) {
+        setAnswers(state.dailyCheckIn.answers);
+        setAnsweredQuestions(new Set(Object.keys(state.dailyCheckIn.answers).filter(k => state.dailyCheckIn.answers[k] !== null)));
+      }
+      if (state.dailyCheckIn.currentStep) {
+        setCurrentStep(state.dailyCheckIn.currentStep);
+      }
+    }
+  }, [state?.dailyCheckIn]);
 
   function handleTaskToggle(taskId) {
-    setTasksCompleted({
+    const newTasksCompleted = {
       ...tasksCompleted,
       [taskId]: !tasksCompleted[taskId],
+    };
+    setTasksCompleted(newTasksCompleted);
+    
+    // Guardar tareas inmediatamente
+    updateCheckInProgress({ tasksCompleted: newTasksCompleted });
+  }
+
+  function handleAnswerHabit(question, answer) {
+    if (answeredQuestions.has(question)) {
+      return; // Ya respondida, bloqueada
+    }
+    
+    const newAnswers = { ...answers, [question]: answer };
+    setAnswers(newAnswers);
+    setAnsweredQuestions(new Set([...answeredQuestions, question]));
+    
+    // Guardar respuesta inmediatamente
+    updateCheckInProgress({ answers: newAnswers });
+  }
+
+  function updateCheckInProgress(updates) {
+    const updatedCheckIn = {
+      ...checkInState,
+      ...updates,
+      currentStep,
+      lastUpdated: new Date().toISOString(),
+    };
+    
+    setCheckInState(updatedCheckIn);
+    updateState({
+      dailyCheckIn: updatedCheckIn,
     });
   }
 
-  function proceedToHabits() {
-    setStep('habits');
+  function handleNextStep() {
+    if (currentStep === 'tasks') {
+      setCurrentStep('habits');
+      updateCheckInProgress({ currentStep: 'habits' });
+    }
   }
 
-  function handleSubmit() {
+  function handleFinalizeCheckIn() {
+    // Calcular puntos SOLO de lo que respondió
+    const answeredCount = Object.values(answers).filter(a => a !== null).length;
+    const totalHabits = 6;
+    
+    // NO castigar si no respondió todo, solo calcula lo que respondió
     const totalPoints = calculatePoints(answers, tasksCompleted);
     
-    // Calcular salud mental y completadas para mensaje dinámico
+    // Salud mental: solo si COMPLETÓ todas las tareas (o respondió sobre ellas)
     const completedCount = Object.values(tasksCompleted).filter(t => t).length;
     const totalTasks = state.dailyTasks?.length || 3;
-    const mentalHealthChange = completedCount === totalTasks ? 0 : (completedCount === 0 ? -10 : -5);
-    const newMentalHealth = Math.max(0, (state.mentalHealth || 50) + mentalHealthChange);
     
     const witness = {
       id: Date.now(),
       date: new Date().toLocaleDateString('es-ES'),
-      message: getWitnessMessage(completedCount, totalTasks, newMentalHealth, false),
+      message: getWitnessMessage(completedCount, totalTasks, state.mentalHealth, false),
     };
     
-    // NUEVO: Mantener tareas incompletas del día anterior
-    // Separa: incompletas (pasan al siguiente día) y completadas (se resetean)
-    const incompleteTasks = state.dailyTasks.filter(task => !tasksCompleted[task.id]);
-    const completedTasks = state.dailyTasks.filter(task => tasksCompleted[task.id]);
-    
-    // Las tareas completadas se resetean, las incompletas se mantienen en el orden
-    const resetTasks = [
-      ...incompleteTasks, // Incompletas del día anterior (mismo orden)
-      ...completedTasks.map(task => ({...task, done: false})) // Completadas se resetean
-    ];
-    
     const newWitnesses = [witness, ...state.witnesses].slice(0, 10);
-    updateState({ 
+    
+    // Resetear check-in diario para mañana
+    updateState({
       witnesses: newWitnesses,
       lastCheckIn: new Date().toISOString(),
       totalPoints: (state.totalPoints || 0) + totalPoints,
-      dailyTasks: resetTasks, // Incompletas + completadas reseteadas
-      mentalHealth: newMentalHealth, // Usar newMentalHealth ya calculado
+      dailyCheckIn: null, // Resetear para mañana
     });
     
     setSubmitted(true);
-    setTimeout(() => {
-      setSubmitted(false);
-      setStep('tasks');
-      setTasksCompleted({});
-      setAnswers({
-        onicofagia: null,
-        pantallas_apps: null,
-        pantallas_impulso: null,
-        pornografia: null,
-        porros: null,
-        tabaco: null,
-      });
-    }, 3000);
   }
 
   function calculatePoints(answers, tasks) {
     let points = 0;
     
-    // Procrastinación: se calcula automáticamente desde tareas
-    const completedCount = Object.values(tasks).filter(t => t).length;
-    const totalTasks = state.dailyTasks?.length || 3;
+    // Puntos por tareas
+    const completedTasks = Object.values(tasks).filter(t => t).length;
+    points += completedTasks * 5;
     
-    if (completedCount === totalTasks) {
-      points += 10; // Todas completas: +10
-    } else if (completedCount === 0) {
-      points -= 10; // Ninguna: -10 (ajustado de -15)
-    } else if (completedCount === 1) {
-      points += 0; // 1 de 3: neutral
-    } else if (completedCount === 2) {
-      points += 5; // 2 de 3: +5
+    // Puntos por hábitos (solo de lo respondido)
+    if (answers.onicofagia !== null) {
+      points += answers.onicofagia;
+    }
+    if (answers.pornografia !== null) {
+      points += answers.pornografia;
+    }
+    if (answers.porros !== null) {
+      points += answers.porros;
+    }
+    if (answers.tabaco !== null) {
+      points += answers.tabaco;
+    }
+    if (answers.pantallas_apps !== null) {
+      points += answers.pantallas_apps;
+    }
+    if (answers.pantallas_impulso !== null) {
+      points += answers.pantallas_impulso;
     }
     
-    // Hábitos: simétrico ±10 balance
-    // Pornografía: -10 / 0 / +10
-    if (answers.pornografia !== null) points += answers.pornografia;
-    
-    // Porros: -10 / 0 / +10
-    if (answers.porros !== null) points += answers.porros;
-    
-    // Tabaco: -10 / 0 / +10 (ajustado de -10/0/+5)
-    if (answers.tabaco !== null) points += answers.tabaco;
-    
-    // Onicofagia: -10 / -5 / +5 / +10 (ajustado de -7/-3/+2/+5)
-    if (answers.onicofagia !== null) points += answers.onicofagia;
-    
-    // Pantallas (apps): -10 / +10
-    if (answers.pantallas_apps !== null) points += answers.pantallas_apps;
-    
-    // Pantallas (impulso): -7 / 0 / +7 (más suave que otros hábitos)
-    if (answers.pantallas_impulso !== null) points += answers.pantallas_impulso;
-    
-    // Puntos de tareas (proporcionales a prioridad)
-    const taskPoints = [8, 5, 2]; // Tarea 1, 2, 3
-    if (state.dailyTasks && state.dailyTasks.length > 0) {
-      state.dailyTasks.slice(0, 3).forEach((task, index) => {
-        if (tasks[task.id]) {
-          points += taskPoints[index];
-        } else {
-          points -= taskPoints[index];
-        }
-      });
-    }
-    
-    return points;
+    return Math.max(0, points);
   }
 
-  function generateWitnessMessage(tasks, answers) {
-    const completedTasks = Object.values(tasks).filter(t => t).length;
-    const totalTasks = state.dailyTasks?.length || 3;
-    
-    if (completedTasks === totalTasks) {
-      return `Completaste TODAS las tareas. Tu hijo futuro está orgulloso. Eso es fuerza.`;
-    } else if (completedTasks > 0) {
-      return `Hiciste ${completedTasks} de ${totalTasks} tareas. Avance es avance. Sigue.`;
-    } else {
-      return `Hoy fue duro. Pero viniste aquí. Eso que importa. Tu hijo ve tu intención.`;
-    }
+  // Si ya finalizó hoy
+  if (submitted) {
+    return (
+      <div className="tab-checkin">
+        <div className="checkin-completed">
+          <div className="checkin-title">✅ Check-in Completado</div>
+          <div className="checkin-subtitle">Vuelve mañana para continuar tu viaje.</div>
+          <button 
+            className="btn-primary" 
+            onClick={() => {
+              setSubmitted(false);
+              setCheckInState(null);
+              setTasksCompleted({});
+              setAnswers({ onicofagia: null, pantallas_apps: null, pantallas_impulso: null, pornografia: null, porros: null, tabaco: null });
+              setAnsweredQuestions(new Set());
+              setCurrentStep('tasks');
+            }}
+          >
+            Entendido
+          </button>
+        </div>
+      </div>
+    );
   }
 
   const tasksCompleteCount = Object.values(tasksCompleted).filter(t => t).length;
@@ -146,222 +170,242 @@ export default function TabCheckIn({ state, updateState }) {
   return (
     <div className="tab-checkin">
       <div className="checkin-header">
-        <div className="checkin-title">📋 Check-in Diario</div>
+        <div className="checkin-title">📋 Check-in Diario (Progresivo)</div>
         <div className="checkin-subtitle">
-          {step === 'tasks' ? '¿Completaste tus tareas?' : '¿Cómo estuvo tu día?'}
+          Guarda durante el día, contesta lo que puedas
         </div>
-        <div className="checkin-progress">{step === 'tasks' ? '1/2' : '2/2'}</div>
+        <div className="checkin-progress">{currentStep === 'tasks' ? '1/2 - Tareas' : '2/2 - Hábitos'}</div>
       </div>
 
-      {step === 'tasks' && (
+      {currentStep === 'tasks' && (
         <div className="questions-container">
           <div className="tasks-section">
-            <p className="section-info">Marca las tareas que completaste hoy:</p>
+            <p className="section-info">✅ Marca tareas completadas hoy:</p>
             {state.dailyTasks && state.dailyTasks.length > 0 ? (
               state.dailyTasks.map(task => (
-                <div key={task.id} className="task-checkbox">
+                <div key={task.id} className="task-item">
                   <input
                     type="checkbox"
                     checked={tasksCompleted[task.id] || false}
                     onChange={() => handleTaskToggle(task.id)}
                     id={`task-${task.id}`}
                   />
-                  <label htmlFor={`task-${task.id}`}>{task.text}</label>
+                  <label htmlFor={`task-${task.id}`}>{task.name}</label>
                 </div>
               ))
             ) : (
-              <p className="section-info">No hay tareas definidas</p>
+              <p className="no-tasks">No hay tareas para hoy.</p>
             )}
+            
+            <div className="task-summary">
+              <strong>{tasksCompleteCount} de {totalTasks}</strong> completadas
+            </div>
           </div>
-          <button className="btn-next" onClick={proceedToHabits}>
-            Siguiente →
+
+          <button className="btn-primary" onClick={handleNextStep}>
+            Siguiente: Hábitos
           </button>
         </div>
       )}
 
-      {step === 'habits' && (
+      {currentStep === 'habits' && (
         <div className="questions-container">
-          {/* BREAKDOWN DE TAREAS */}
-          <div className="tasks-breakdown">
-            <div className="breakdown-title">📊 Resumen Tareas</div>
-            {state.dailyTasks && state.dailyTasks.slice(0, 3).map((task, index) => {
-              const taskPoints = [8, 5, 2][index];
-              const completed = tasksCompleted[task.id];
-              const points = completed ? taskPoints : -taskPoints;
-              return (
-                <div key={task.id} className={`breakdown-item ${completed ? 'completed' : 'failed'}`}>
-                  <span className="task-name">{task.text}</span>
-                  <span className={`task-points ${completed ? 'positive' : 'negative'}`}>
-                    {completed ? '+' : ''}{points}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-          
-          {/* ONICOFAGIA */}
-          <div className="question">
-            <label>💅 Onicofagia</label>
-            <div className="answer-options">
-              <button 
-                className={answers.onicofagia === -10 ? 'active' : ''} 
-                onClick={() => setAnswers({...answers, onicofagia: -10})}
+          <p className="section-info">🎯 Responde sobre tus hábitos (respuestas bloqueadas después):</p>
+
+          {/* Onicofagia */}
+          <div className="habit-section">
+            <h4>Uñas (Onicofagia)</h4>
+            {answeredQuestions.has('onicofagia') && (
+              <div className="answered-badge">✓ Ya respondida</div>
+            )}
+            <div className="habit-options">
+              <button
+                className={`habit-btn ${answers.onicofagia === -10 ? 'active critical' : ''} ${answeredQuestions.has('onicofagia') ? 'disabled' : ''}`}
+                onClick={() => handleAnswerHabit('onicofagia', -10)}
+                disabled={answeredQuestions.has('onicofagia') && answers.onicofagia !== -10}
               >
-                Dañadas
+                Dañadas (-10)
               </button>
-              <button 
-                className={answers.onicofagia === -5 ? 'active' : ''} 
-                onClick={() => setAnswers({...answers, onicofagia: -5})}
+              <button
+                className={`habit-btn ${answers.onicofagia === -5 ? 'active warning' : ''} ${answeredQuestions.has('onicofagia') ? 'disabled' : ''}`}
+                onClick={() => handleAnswerHabit('onicofagia', -5)}
+                disabled={answeredQuestions.has('onicofagia') && answers.onicofagia !== -5}
               >
-                Regular
+                Regular (-5)
               </button>
-              <button 
-                className={answers.onicofagia === 5 ? 'active' : ''} 
-                onClick={() => setAnswers({...answers, onicofagia: 5})}
+              <button
+                className={`habit-btn ${answers.onicofagia === 5 ? 'active good' : ''} ${answeredQuestions.has('onicofagia') ? 'disabled' : ''}`}
+                onClick={() => handleAnswerHabit('onicofagia', 5)}
+                disabled={answeredQuestions.has('onicofagia') && answers.onicofagia !== 5}
               >
-                Bien
+                Bien (+5)
               </button>
-              <button 
-                className={answers.onicofagia === 10 ? 'active' : ''} 
-                onClick={() => setAnswers({...answers, onicofagia: 10})}
+              <button
+                className={`habit-btn ${answers.onicofagia === 10 ? 'active excellent' : ''} ${answeredQuestions.has('onicofagia') ? 'disabled' : ''}`}
+                onClick={() => handleAnswerHabit('onicofagia', 10)}
+                disabled={answeredQuestions.has('onicofagia') && answers.onicofagia !== 10}
               >
-                ✓ Excelentes
+                Excelentes (+10)
               </button>
             </div>
           </div>
 
-          {/* PANTALLAS - PREGUNTA 1: APPS NUEVAS */}
-          <div className="question">
-            <label>📱 Pantallas - ¿Instalaste apps nuevas?</label>
-            <p className="question-hint">Regla inquebrantable</p>
-            <div className="answer-options">
-              <button 
-                className={answers.pantallas_apps === 10 ? 'active' : ''} 
-                onClick={() => setAnswers({...answers, pantallas_apps: 10})}
+          {/* Pantallas Apps */}
+          <div className="habit-section">
+            <h4>¿Abriste apps sin propósito hoy?</h4>
+            {answeredQuestions.has('pantallas_apps') && (
+              <div className="answered-badge">✓ Ya respondida</div>
+            )}
+            <div className="habit-options">
+              <button
+                className={`habit-btn ${answers.pantallas_apps === -10 ? 'active critical' : ''} ${answeredQuestions.has('pantallas_apps') ? 'disabled' : ''}`}
+                onClick={() => handleAnswerHabit('pantallas_apps', -10)}
+                disabled={answeredQuestions.has('pantallas_apps') && answers.pantallas_apps !== -10}
               >
-                ✓ No
+                Sí (-10)
               </button>
-              <button 
-                className={answers.pantallas_apps === -15 ? 'active' : ''} 
-                onClick={() => setAnswers({...answers, pantallas_apps: -15})}
+              <button
+                className={`habit-btn ${answers.pantallas_apps === 10 ? 'active excellent' : ''} ${answeredQuestions.has('pantallas_apps') ? 'disabled' : ''}`}
+                onClick={() => handleAnswerHabit('pantallas_apps', 10)}
+                disabled={answeredQuestions.has('pantallas_apps') && answers.pantallas_apps !== 10}
               >
-                Sí
-              </button>
-            </div>
-          </div>
-
-          {/* PANTALLAS - PREGUNTA 2: IMPULSO */}
-          <div className="question">
-            <label>📱 Pantallas - ¿Uso por impulso (no programado)?</label>
-            <p className="question-hint">No (+7) → Poco (0) → Bastante (-10)</p>
-            <div className="answer-options">
-              <button 
-                className={answers.pantallas_impulso === 7 ? 'active' : ''} 
-                onClick={() => setAnswers({...answers, pantallas_impulso: 7})}
-              >
-                ✓ No
-              </button>
-              <button 
-                className={answers.pantallas_impulso === 0 ? 'active' : ''} 
-                onClick={() => setAnswers({...answers, pantallas_impulso: 0})}
-              >
-                Poco
-              </button>
-              <button 
-                className={answers.pantallas_impulso === -10 ? 'active' : ''} 
-                onClick={() => setAnswers({...answers, pantallas_impulso: -10})}
-              >
-                Bastante
+                No (+10)
               </button>
             </div>
           </div>
 
-          {/* PORNOGRAFÍA */}
-          <div className="question hidden-habit">
-            <label>❌ Pornografía</label>
-            <div className="answer-options">
-              <button 
-                className={answers.pornografia === 10 ? 'active' : ''} 
-                onClick={() => setAnswers({...answers, pornografia: 10})}
+          {/* Pantallas Impulso */}
+          <div className="habit-section">
+            <h4>Scroll/impulso sin control</h4>
+            {answeredQuestions.has('pantallas_impulso') && (
+              <div className="answered-badge">✓ Ya respondida</div>
+            )}
+            <div className="habit-options">
+              <button
+                className={`habit-btn ${answers.pantallas_impulso === -7 ? 'active critical' : ''} ${answeredQuestions.has('pantallas_impulso') ? 'disabled' : ''}`}
+                onClick={() => handleAnswerHabit('pantallas_impulso', -7)}
+                disabled={answeredQuestions.has('pantallas_impulso') && answers.pantallas_impulso !== -7}
               >
-                ✓ No
+                Bastante (-7)
               </button>
-              <button 
-                className={answers.pornografia === 0 ? 'active' : ''} 
-                onClick={() => setAnswers({...answers, pornografia: 0})}
+              <button
+                className={`habit-btn ${answers.pantallas_impulso === 0 ? 'active warning' : ''} ${answeredQuestions.has('pantallas_impulso') ? 'disabled' : ''}`}
+                onClick={() => handleAnswerHabit('pantallas_impulso', 0)}
+                disabled={answeredQuestions.has('pantallas_impulso') && answers.pantallas_impulso !== 0}
               >
-                Una vez
+                Poco (0)
               </button>
-              <button 
-                className={answers.pornografia === -15 ? 'active' : ''} 
-                onClick={() => setAnswers({...answers, pornografia: -15})}
+              <button
+                className={`habit-btn ${answers.pantallas_impulso === 7 ? 'active excellent' : ''} ${answeredQuestions.has('pantallas_impulso') ? 'disabled' : ''}`}
+                onClick={() => handleAnswerHabit('pantallas_impulso', 7)}
+                disabled={answeredQuestions.has('pantallas_impulso') && answers.pantallas_impulso !== 7}
               >
-                Varias veces
-              </button>
-            </div>
-          </div>
-
-          {/* PORROS */}
-          <div className="question hidden-habit">
-            <label>🚭 Porros</label>
-            <div className="answer-options">
-              <button 
-                className={answers.porros === 10 ? 'active' : ''} 
-                onClick={() => setAnswers({...answers, porros: 10})}
-              >
-                ✓ Nada
-              </button>
-              <button 
-                className={answers.porros === 0 ? 'active' : ''} 
-                onClick={() => setAnswers({...answers, porros: 0})}
-              >
-                Una vez
-              </button>
-              <button 
-                className={answers.porros === -15 ? 'active' : ''} 
-                onClick={() => setAnswers({...answers, porros: -15})}
-              >
-                Más de una
+                No (+7)
               </button>
             </div>
           </div>
 
-          {/* TABACO */}
-          <div className="question hidden-habit">
-            <label>🚬 Tabaco</label>
-            <div className="answer-options">
-              <button 
-                className={answers.tabaco === 10 ? 'active' : ''} 
-                onClick={() => setAnswers({...answers, tabaco: 10})}
+          {/* Pornografía */}
+          <div className="habit-section">
+            <h4>🔴 Pornografía</h4>
+            {answeredQuestions.has('pornografia') && (
+              <div className="answered-badge">✓ Ya respondida</div>
+            )}
+            <div className="habit-options">
+              <button
+                className={`habit-btn ${answers.pornografia === -10 ? 'active critical' : ''} ${answeredQuestions.has('pornografia') ? 'disabled' : ''}`}
+                onClick={() => handleAnswerHabit('pornografia', -10)}
+                disabled={answeredQuestions.has('pornografia') && answers.pornografia !== -10}
               >
-                ✓ Nada
+                Varias (-10)
               </button>
-              <button 
-                className={answers.tabaco === 0 ? 'active' : ''} 
-                onClick={() => setAnswers({...answers, tabaco: 0})}
+              <button
+                className={`habit-btn ${answers.pornografia === 0 ? 'active warning' : ''} ${answeredQuestions.has('pornografia') ? 'disabled' : ''}`}
+                onClick={() => handleAnswerHabit('pornografia', 0)}
+                disabled={answeredQuestions.has('pornografia') && answers.pornografia !== 0}
               >
-                Una vez
+                Una (0)
               </button>
-              <button 
-                className={answers.tabaco === -10 ? 'active' : ''} 
-                onClick={() => setAnswers({...answers, tabaco: -10})}
+              <button
+                className={`habit-btn ${answers.pornografia === 10 ? 'active excellent' : ''} ${answeredQuestions.has('pornografia') ? 'disabled' : ''}`}
+                onClick={() => handleAnswerHabit('pornografia', 10)}
+                disabled={answeredQuestions.has('pornografia') && answers.pornografia !== 10}
               >
-                Más de una
+                No (+10)
               </button>
             </div>
           </div>
-        </div>
-      )}
 
-      {step === 'habits' && (
-        <button className="btn-submit" onClick={handleSubmit}>
-          ✓ Guardar Check-in
-        </button>
-      )}
+          {/* Porros */}
+          <div className="habit-section">
+            <h4>🔴 Porros</h4>
+            {answeredQuestions.has('porros') && (
+              <div className="answered-badge">✓ Ya respondida</div>
+            )}
+            <div className="habit-options">
+              <button
+                className={`habit-btn ${answers.porros === -10 ? 'active critical' : ''} ${answeredQuestions.has('porros') ? 'disabled' : ''}`}
+                onClick={() => handleAnswerHabit('porros', -10)}
+                disabled={answeredQuestions.has('porros') && answers.porros !== -10}
+              >
+                Varias (-10)
+              </button>
+              <button
+                className={`habit-btn ${answers.porros === 0 ? 'active warning' : ''} ${answeredQuestions.has('porros') ? 'disabled' : ''}`}
+                onClick={() => handleAnswerHabit('porros', 0)}
+                disabled={answeredQuestions.has('porros') && answers.porros !== 0}
+              >
+                Una (0)
+              </button>
+              <button
+                className={`habit-btn ${answers.porros === 10 ? 'active excellent' : ''} ${answeredQuestions.has('porros') ? 'disabled' : ''}`}
+                onClick={() => handleAnswerHabit('porros', 10)}
+                disabled={answeredQuestions.has('porros') && answers.porros !== 10}
+              >
+                Nada (+10)
+              </button>
+            </div>
+          </div>
 
-      {submitted && (
-        <div className="success-message">
-          ✓ Check-in guardado. Carta generada.
+          {/* Tabaco */}
+          <div className="habit-section">
+            <h4>🔴 Tabaco</h4>
+            {answeredQuestions.has('tabaco') && (
+              <div className="answered-badge">✓ Ya respondida</div>
+            )}
+            <div className="habit-options">
+              <button
+                className={`habit-btn ${answers.tabaco === -10 ? 'active critical' : ''} ${answeredQuestions.has('tabaco') ? 'disabled' : ''}`}
+                onClick={() => handleAnswerHabit('tabaco', -10)}
+                disabled={answeredQuestions.has('tabaco') && answers.tabaco !== -10}
+              >
+                Varias (-10)
+              </button>
+              <button
+                className={`habit-btn ${answers.tabaco === 0 ? 'active warning' : ''} ${answeredQuestions.has('tabaco') ? 'disabled' : ''}`}
+                onClick={() => handleAnswerHabit('tabaco', 0)}
+                disabled={answeredQuestions.has('tabaco') && answers.tabaco !== 0}
+              >
+                Una (0)
+              </button>
+              <button
+                className={`habit-btn ${answers.tabaco === 10 ? 'active excellent' : ''} ${answeredQuestions.has('tabaco') ? 'disabled' : ''}`}
+                onClick={() => handleAnswerHabit('tabaco', 10)}
+                disabled={answeredQuestions.has('tabaco') && answers.tabaco !== 10}
+              >
+                Nada (+10)
+              </button>
+            </div>
+          </div>
+
+          <div className="checkin-actions">
+            <button className="btn-secondary" onClick={() => setCurrentStep('tasks')}>
+              Atrás
+            </button>
+            <button className="btn-primary" onClick={handleFinalizeCheckIn}>
+              Finalizar Check-in
+            </button>
+          </div>
         </div>
       )}
     </div>
