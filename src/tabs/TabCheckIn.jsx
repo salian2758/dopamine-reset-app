@@ -60,6 +60,17 @@ export default function TabCheckIn({ state, updateState }) {
     updateCheckInProgress({ tasksCompleted: newTasksCompleted });
   }
 
+  function handleUpdateTaskName(taskId, newName) {
+    // Actualizar el nombre de la tarea en state.dailyTasks
+    const updatedTasks = state.dailyTasks.map(task =>
+      task.id === taskId ? { ...task, name: newName } : task
+    );
+    
+    updateState({
+      dailyTasks: updatedTasks,
+    });
+  }
+
   function handleAnswerHabit(question, answer) {
     if (answeredQuestions.has(question)) {
       return; // Ya respondida, bloqueada
@@ -213,7 +224,13 @@ export default function TabCheckIn({ state, updateState }) {
                     onChange={() => handleTaskToggle(task.id)}
                     id={`task-${task.id}`}
                   />
-                  <label htmlFor={`task-${task.id}`}>{task.name || `Tarea ${task.id}`}</label>
+                  <input
+                    type="text"
+                    value={task.name || `Tarea ${task.id}`}
+                    onChange={(e) => handleUpdateTaskName(task.id, e.target.value)}
+                    className="task-name-input"
+                    placeholder={`Tarea ${task.id}`}
+                  />
                 </div>
               ))
             ) : (
@@ -275,7 +292,7 @@ export default function TabCheckIn({ state, updateState }) {
 
           {/* Pantallas Apps */}
           <div className="habit-section">
-            <h4>¿Abriste apps sin propósito hoy?</h4>
+            <h4>¿Instalaste apps nuevas hoy?</h4>
             {answeredQuestions.has('pantallas_apps') && (
               <div className="answered-badge">✓ Ya respondida</div>
             )}
@@ -299,7 +316,7 @@ export default function TabCheckIn({ state, updateState }) {
 
           {/* Pantallas Impulso */}
           <div className="habit-section">
-            <h4>Scroll/impulso sin control</h4>
+            <h4>¿Scroll sin control cuando tenías algo mejor que hacer?</h4>
             {answeredQuestions.has('pantallas_impulso') && (
               <div className="answered-badge">✓ Ya respondida</div>
             )}
@@ -316,7 +333,7 @@ export default function TabCheckIn({ state, updateState }) {
                 onClick={() => handleAnswerHabit('pantallas_impulso', 0)}
                 disabled={answeredQuestions.has('pantallas_impulso') && answers.pantallas_impulso !== 0}
               >
-                Poco (0)
+                Un poco (0)
               </button>
               <button
                 className={`habit-btn ${answers.pantallas_impulso === 5 ? 'active excellent' : ''} ${answeredQuestions.has('pantallas_impulso') ? 'disabled' : ''}`}

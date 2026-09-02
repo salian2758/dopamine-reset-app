@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getChapter } from '../balanceSystem';
 
 const HABITS_CONFIG = {
   pornografia: { name: 'Pornografía', emoji: '❌', critical: true },
@@ -20,11 +21,27 @@ export default function TabToday({ state, updateState, onNavigateToTab }) {
   const [newTaskText, setNewTaskText] = useState('');
   const [selectedHabit, setSelectedHabit] = useState(null);
 
-  function getChapter(points) {
-    if (points < 200) return 'I: Despertar';
-    if (points < 500) return 'II: Disciplina';
-    if (points < 1000) return 'III: Maestría';
-    return 'IV: Legendario';
+  function getChapterProgress(points) {
+    const chapter = getChapter(points);
+    const chapterNum = chapter.chapter;
+    
+    let min, max;
+    if (chapterNum === 'I') {
+      min = 0;
+      max = 300;
+    } else if (chapterNum === 'II') {
+      min = 300;
+      max = 700;
+    } else if (chapterNum === 'III') {
+      min = 700;
+      max = 1500;
+    } else {
+      // Cap IV: mostrar como 100%
+      return 100;
+    }
+    
+    const progress = ((points - min) / (max - min)) * 100;
+    return Math.min(100, Math.max(0, progress));
   }
 
   const [editingTaskId, setEditingTaskId] = useState(null);
@@ -84,9 +101,9 @@ export default function TabToday({ state, updateState, onNavigateToTab }) {
     <div className="tab-today">
       {/* BANNER */}
       <div className="chapter-banner">
-        <div className="chapter-title">Capítulo {getChapter(state.totalPoints)}</div>
+        <div className="chapter-title">Capítulo {getChapter(state.totalPoints).chapter}: {getChapter(state.totalPoints).name}</div>
         <div className="chapter-progress">
-          <div className="progress-bar" style={{ width: `${(state.totalPoints % 200 / 200) * 100}%` }} />
+          <div className="progress-bar" style={{ width: `${getChapterProgress(state.totalPoints)}%` }} />
         </div>
         <div className="chapter-points">{state.totalPoints} puntos totales</div>
       </div>

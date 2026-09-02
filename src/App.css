@@ -277,12 +277,33 @@ body {
   background: var(--bg-1);
   border-radius: 6px;
   font-size: 13px;
+  user-select: none;
 }
 
-.task-item input {
+.task-item input[type="checkbox"] {
   width: 18px;
   height: 18px;
   cursor: pointer;
+  flex-shrink: 0;
+}
+
+.task-name-input {
+  flex: 1;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  padding: 4px 6px;
+  color: var(--text-primary);
+  font-size: 13px;
+  font-family: inherit;
+  cursor: text;
+  transition: border-color 0.2s;
+}
+
+.task-name-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: rgba(102, 126, 234, 0.1);
 }
 
 .task-item span.done {
@@ -1412,6 +1433,10 @@ body {
   transition: all 0.2s;
   text-align: center;
   line-height: 1.3;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 .habit-btn:hover:not(.disabled) {
