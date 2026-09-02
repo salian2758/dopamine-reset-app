@@ -97,13 +97,14 @@ export default function TabCheckIn({ state, updateState }) {
     };
     
     const newWitnesses = [witness, ...state.witnesses].slice(0, 10);
+    const today = new Date().toISOString();
     
-    // Resetear check-in diario para mañana
+    // Guardar que se completó el check-in de hoy antes de resetear para mañana
     updateState({
       witnesses: newWitnesses,
-      lastCheckIn: new Date().toISOString(),
+      lastCheckIn: today, // Esto marca que se hizo check-in HOY
       totalPoints: (state.totalPoints || 0) + totalPoints,
-      dailyCheckIn: null, // Resetear para mañana
+      dailyCheckIn: null, // Resetear para que mañana se pueda hacer nuevo check-in
     });
     
     setSubmitted(true);

@@ -3,6 +3,7 @@ import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth, db } from './firebase';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { getHeaderMessage } from './messages';
+import { shouldApplyDefaultFailure, applyDefaultFailure } from './checkInManager';
 import './App.css';
 import Login from './Login';
 import TabToday from './tabs/TabToday';
@@ -50,6 +51,36 @@ export default function App() {
       setHeaderMessage(getHeaderMessage(chapterNum));
     }
   }, [appState?.chapter]);
+
+  // Verificar si necesita penalización por no hacer check-in
+  useEffect(() => {
+    if (appState && user && !loading) {
+      const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+      const lastCheckInDate = appState.lastCheckIn 
+        ? new Date(appState.lastCheckIn).toISOString().split('T')[0]
+        : null;
+      
+      // Si el último check-in NO fue hoy Y no hay dailyCheckIn actual
+      if (lastCheckInDate !== today && !appState.dailyCheckIn) {
+        // Aplicar penalizaciones automáticas por no hacer check-in ayer
+        const penalizedState = applyDefaultFailure(appState);
+        
+        // Resetear dailyCheckIn para hoy
+        const updatedState = {
+          ...appState,
+          ...penalizedState,
+          dailyCheckIn: null,
+        };
+        
+        // Guardar en Firestore
+        const userDocRef = doc(db, 'users', user.uid);
+        setDoc(userDocRef, updatedState);
+        
+        // Actualizar estado local
+        setAppState(updatedState);
+      }
+    }
+  }, [user?.uid, loading]);
 
   function getInitialState() {
     return {
