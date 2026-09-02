@@ -121,7 +121,7 @@ export default function App() {
         <div className="header-banner">
           <div className="header-logo-section">
             <img src="/logo.svg" alt="Dopamine Reset Logo" className="header-logo" />
-            <div>
+            <div className="header-text-wrapper">
               <div className="header-title">{headerMessage}</div>
               <div className="header-subtitle">Capítulo {appState.chapter} • Salud Mental: {appState.mentalHealth}%</div>
             </div>
