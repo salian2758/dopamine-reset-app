@@ -162,34 +162,63 @@ export default function TabToday({ state, updateState, onNavigateToTab }) {
         </div>
       </div>
 
-      {/* TAREAS ADICIONALES */}
-      {state.dailyTasks.length > 3 && (
-        <div className="tasks-section">
-          <div className="section-title">📝 Otras Tareas</div>
-          <div className="tasks-list">
-            {state.dailyTasks.slice(3).map(task => (
-              <div key={task.id} className={`task-item ${task.done ? 'completed' : ''}`}>
+      {/* TAREAS ADICIONALES O NUEVAS */}
+      {(() => {
+        // Verificar si las 3 primeras tareas están TODAS done
+        const first3Tasks = state.dailyTasks.slice(0, 3);
+        const allFirst3Done = first3Tasks.every(t => t.done === true);
+        
+        if (allFirst3Done && state.dailyTasks.length === 3) {
+          // Si las 3 primeras están done Y no hay más tareas, mostrar sección de agregar nuevas
+          return (
+            <div className="tasks-section">
+              <div className="section-title">✅ ¡Completaste hoy! Agregar nuevas tareas?</div>
+              <p className="section-hint">Puedes agregar más tareas para hoy o preparar para mañana.</p>
+              <div className="add-task">
                 <input
-                  type="checkbox"
-                  checked={task.done}
-                  onChange={() => toggleTask(task.id)}
+                  type="text"
+                  placeholder="+ Nueva tarea prioritaria"
+                  value={newTaskText}
+                  onChange={e => setNewTaskText(e.target.value)}
+                  onKeyPress={e => e.key === 'Enter' && addTask()}
+                  autoFocus
                 />
-                <span className={task.done ? 'done' : ''}>{task.name}</span>
+                <button onClick={addTask}>+</button>
               </div>
-            ))}
-          </div>
-          <div className="add-task">
-            <input
-              type="text"
-              placeholder="+ Nueva tarea"
-              value={newTaskText}
-              onChange={e => setNewTaskText(e.target.value)}
-              onKeyPress={e => e.key === 'Enter' && addTask()}
-            />
-            <button onClick={addTask}>+</button>
-          </div>
-        </div>
-      )}
+            </div>
+          );
+        } else if (state.dailyTasks.length > 3) {
+          // Si hay más de 3 tareas, mostrar la sección "Otras Tareas"
+          return (
+            <div className="tasks-section">
+              <div className="section-title">📝 Otras Tareas</div>
+              <div className="tasks-list">
+                {state.dailyTasks.slice(3).map(task => (
+                  <div key={task.id} className={`task-item ${task.done ? 'completed' : ''}`}>
+                    <input
+                      type="checkbox"
+                      checked={task.done}
+                      onChange={() => toggleTask(task.id)}
+                    />
+                    <span className={task.done ? 'done' : ''}>{task.name}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="add-task">
+                <input
+                  type="text"
+                  placeholder="+ Nueva tarea"
+                  value={newTaskText}
+                  onChange={e => setNewTaskText(e.target.value)}
+                  onKeyPress={e => e.key === 'Enter' && addTask()}
+                />
+                <button onClick={addTask}>+</button>
+              </div>
+            </div>
+          );
+        }
+        return null;
+      })()}
 
       {/* HÁBITOS */}
       <div className="habits-section">

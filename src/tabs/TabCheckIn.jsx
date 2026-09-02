@@ -182,14 +182,19 @@ export default function TabCheckIn({ state, updateState }) {
     
     // Actualizar dailyTasks con el estado del check-in
     // IMPORTANTE: Remover tareas completadas (done: true)
-    const updatedDailyTasks = state.dailyTasks
+    // LUEGO reordenar: pendientes primero, en orden de ID (prioridad)
+    let updatedDailyTasks = state.dailyTasks
       .map(task => ({
         ...task,
         done: tasksCompleted[task.id] === 'done' ? true : false,
       }))
       .filter(task => tasksCompleted[task.id] !== 'done'); // REMOVER las que están done
     
-    console.log('📝 updatedDailyTasks (tareas sin las completadas):', updatedDailyTasks); // DEBUG
+    // Reordenar: primero tareas sin hacer (id 1-3), luego nuevas (id 4+)
+    // Esto garantiza que las tareas nuevas se conviertan en prioridades si se terminan las viejas
+    updatedDailyTasks = updatedDailyTasks.sort((a, b) => a.id - b.id);
+    
+    console.log('📝 updatedDailyTasks (reordenadas):', updatedDailyTasks); // DEBUG
     
     const updatePayload = {
       witnesses: newWitnesses,
