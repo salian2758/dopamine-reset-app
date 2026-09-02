@@ -20,6 +20,7 @@ export default function TabCheckIn({ state, updateState }) {
   // Cargar check-in del día actual desde Firestore
   useEffect(() => {
     if (state?.dailyCheckIn) {
+      // Si hay un check-in en progreso, cargar su estado completo
       setCheckInState(state.dailyCheckIn);
       if (state.dailyCheckIn.tasksCompleted) {
         setTasksCompleted(state.dailyCheckIn.tasksCompleted);
@@ -28,25 +29,25 @@ export default function TabCheckIn({ state, updateState }) {
         setAnswers(state.dailyCheckIn.answers);
         setAnsweredQuestions(new Set(Object.keys(state.dailyCheckIn.answers).filter(k => state.dailyCheckIn.answers[k] !== null)));
       }
+      // IMPORTANTE: Si hay currentStep guardado, usarlo (para NO resetear a 'tasks')
       if (state.dailyCheckIn.currentStep) {
         setCurrentStep(state.dailyCheckIn.currentStep);
       }
-    } else {
-      // Si no hay dailyCheckIn todavía, resetear todo
-      setCheckInState(null);
-      setTasksCompleted({});
-      setAnswers({
-        onicofagia: null,
-        pantallas_apps: null,
-        pantallas_impulso: null,
-        pornografia: null,
-        porros: null,
-        tabaco: null,
-      });
-      setAnsweredQuestions(new Set());
-      setCurrentStep('tasks');
     }
+    // NO resetear si no hay dailyCheckIn - mantener el estado local
   }, [state?.dailyCheckIn]);
+
+  // Inicializar tasksCompleted desde dailyTasks (si no hay dailyCheckIn aún)
+  useEffect(() => {
+    if (!state?.dailyCheckIn && state?.dailyTasks && state.dailyTasks.length > 0) {
+      // Crear objeto de tareas completadas: { 1: false, 2: false, 3: false, ... }
+      const initialTasks = {};
+      state.dailyTasks.forEach(task => {
+        initialTasks[task.id] = false;
+      });
+      setTasksCompleted(initialTasks);
+    }
+  }, [state?.dailyTasks, state?.dailyCheckIn]);
 
   function handleTaskToggle(taskId) {
     const newTasksCompleted = {
@@ -73,12 +74,23 @@ export default function TabCheckIn({ state, updateState }) {
   }
 
   function updateCheckInProgress(updates) {
+    // Asegurar que checkInState tiene estructura básica
+    const baseCheckIn = checkInState || {
+      tasksCompleted: {},
+      answers: {},
+      currentStep: 'tasks',
+    };
+    
     const updatedCheckIn = {
-      ...checkInState,
+      ...baseCheckIn,
       ...updates,
-      currentStep,
       lastUpdated: new Date().toISOString(),
     };
+    
+    // Asegurar que currentStep está en el objeto (tomar el valor actualizado)
+    if (!updatedCheckIn.currentStep && updates.currentStep === undefined) {
+      updatedCheckIn.currentStep = currentStep;
+    }
     
     setCheckInState(updatedCheckIn);
     updateState({
@@ -88,8 +100,9 @@ export default function TabCheckIn({ state, updateState }) {
 
   function handleNextStep() {
     if (currentStep === 'tasks') {
-      setCurrentStep('habits');
-      updateCheckInProgress({ currentStep: 'habits' });
+      const newStep = 'habits';
+      setCurrentStep(newStep);
+      updateCheckInProgress({ currentStep: newStep });
     }
   }
 
@@ -200,7 +213,7 @@ export default function TabCheckIn({ state, updateState }) {
                     onChange={() => handleTaskToggle(task.id)}
                     id={`task-${task.id}`}
                   />
-                  <label htmlFor={`task-${task.id}`}>{task.name}</label>
+                  <label htmlFor={`task-${task.id}`}>{task.name || `Tarea ${task.id}`}</label>
                 </div>
               ))
             ) : (
