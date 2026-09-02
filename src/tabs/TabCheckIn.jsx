@@ -370,7 +370,7 @@ export default function TabCheckIn({ state, updateState }) {
 
           {/* Pantallas Impulso */}
           <div className="habit-section">
-            <h4>¿Scroll sin control cuando tenías algo mejor que hacer?</h4>
+            <h4>¿Cambiaste de actividad impulsivamente sin poder parar?</h4>
             {answeredQuestions.has('pantallas_impulso') && (
               <div className="answered-badge">✓ Ya respondida</div>
             )}

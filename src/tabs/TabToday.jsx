@@ -4,7 +4,7 @@ import { getChapter } from '../balanceSystem';
 const HABITS_CONFIG = {
   pornografia: { name: 'Pornografía', emoji: '❌', critical: true },
   procrastinacion: { name: 'Procrastinación', emoji: '⏸️', critical: true },
-  pantallas: { name: 'Pantallas / Scroll', emoji: '📱', critical: false },
+  pantallas: { name: 'Impulso (Task-switching)', emoji: '⚡', critical: false },
   porros: { name: 'Porros', emoji: '🚭', critical: true },
   tabaco: { name: 'Tabaco / Nicotina', emoji: '🚬', critical: false },
   onicofagia: { name: 'Onicofagia (uñas)', emoji: '💅', critical: false },
