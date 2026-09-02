@@ -113,8 +113,14 @@ export default function TabCheckIn({ state, updateState }) {
   }
 
   function handleFinalizeCheckIn() {
+    console.log('🟢 FINALIZANDO CHECK-IN'); // DEBUG
+    console.log('tasksCompleted:', tasksCompleted);
+    console.log('answers:', answers);
+    console.log('state.dailyTasks:', state.dailyTasks);
+    
     // Calcular puntos con nuevo sistema balanceado
     const totalPoints = calculatePoints(answers, tasksCompleted);
+    console.log('📊 totalPoints calculados:', totalPoints); // DEBUG
     
     // Calcular salud mental con nuevo sistema
     const completedCount = Object.values(tasksCompleted).filter(t => t === 'done').length;
@@ -123,7 +129,10 @@ export default function TabCheckIn({ state, updateState }) {
     // Contar hábitos fallados para penalización
     const failedHabits = Object.values(answers).filter(a => a !== null && a < 0).length;
     const mentalHealthChange = calculateMentalHealthChange(tasksCompleted, false, failedHabits);
+    console.log('💚 mentalHealthChange:', mentalHealthChange); // DEBUG
+    
     const newMentalHealth = Math.max(0, Math.min(100, (state.mentalHealth || 50) + mentalHealthChange));
+    console.log('Salud mental anterior:', state.mentalHealth, '→ nueva:', newMentalHealth); // DEBUG
     
     const witness = {
       id: Date.now(),
@@ -137,6 +146,7 @@ export default function TabCheckIn({ state, updateState }) {
     // Calcular nuevos puntos totales, pero con mínimo 0
     let newTotalPoints = (state.totalPoints || 0) + totalPoints;
     newTotalPoints = Math.max(0, newTotalPoints);
+    console.log('Puntos totales anterior:', state.totalPoints, '→ nueva:', newTotalPoints); // DEBUG
     
     // Obtener capítulo actual y nuevo
     const currentChapter = getChapter(state.totalPoints || 0);
@@ -149,6 +159,7 @@ export default function TabCheckIn({ state, updateState }) {
       // Mantener los puntos dentro del capítulo actual
       newTotalPoints = Math.max(currentChapter.min, newTotalPoints);
     }
+    console.log('Capítulo anterior:', state.chapter, '→ nuevo:', finalChapter); // DEBUG
     
     // Guardar último check-in completado para referencia
     const completedCheckIn = {
@@ -159,16 +170,18 @@ export default function TabCheckIn({ state, updateState }) {
       mentalHealthChange,
     };
     
-    // Guardar que se completó el check-in de hoy
-    // dailyCheckIn se resetea a null para un nuevo check-in mañana
-    // Pero las tareas permanecen en dailyTasks
     // Actualizar dailyTasks con el estado del check-in
-    const updatedDailyTasks = state.dailyTasks.map(task => ({
-      ...task,
-      done: tasksCompleted[task.id] === 'done' ? true : false,
-    }));
+    // IMPORTANTE: Remover tareas completadas (done: true)
+    const updatedDailyTasks = state.dailyTasks
+      .map(task => ({
+        ...task,
+        done: tasksCompleted[task.id] === 'done' ? true : false,
+      }))
+      .filter(task => tasksCompleted[task.id] !== 'done'); // REMOVER las que están done
     
-    updateState({
+    console.log('📝 updatedDailyTasks (tareas sin las completadas):', updatedDailyTasks); // DEBUG
+    
+    const updatePayload = {
       witnesses: newWitnesses,
       lastCheckIn: today,
       totalPoints: newTotalPoints,
@@ -177,7 +190,11 @@ export default function TabCheckIn({ state, updateState }) {
       lastCompletedCheckIn: completedCheckIn,
       dailyCheckIn: null, // Listo para nuevo check-in mañana
       dailyTasks: updatedDailyTasks, // Sincronizar tareas
-    });
+    };
+    
+    console.log('🔵 Guardando en Firebase:', updatePayload); // DEBUG
+    updateState(updatePayload);
+    console.log('✅ Check-in finalizado'); // DEBUG
     
     setSubmitted(true);
   }
@@ -250,13 +267,19 @@ export default function TabCheckIn({ state, updateState }) {
                     <div className="habit-options two-col">
                       <button
                         className={`habit-btn ${tasksCompleted[task.id] === 'done' ? 'active excellent' : ''}`}
-                        onClick={() => handleTaskOption(task.id, 'done')}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleTaskOption(task.id, 'done');
+                        }}
                       >
                         Hecha (+{donePoints})
                       </button>
                       <button
                         className={`habit-btn ${tasksCompleted[task.id] === 'not-done' ? 'active critical' : ''}`}
-                        onClick={() => handleTaskOption(task.id, 'not-done')}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleTaskOption(task.id, 'not-done');
+                        }}
                       >
                         No hecha ({notDonePoints})
                       </button>
