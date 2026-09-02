@@ -31,6 +31,20 @@ export default function TabCheckIn({ state, updateState }) {
       if (state.dailyCheckIn.currentStep) {
         setCurrentStep(state.dailyCheckIn.currentStep);
       }
+    } else {
+      // Si no hay dailyCheckIn todavía, resetear todo
+      setCheckInState(null);
+      setTasksCompleted({});
+      setAnswers({
+        onicofagia: null,
+        pantallas_apps: null,
+        pantallas_impulso: null,
+        pornografia: null,
+        porros: null,
+        tabaco: null,
+      });
+      setAnsweredQuestions(new Set());
+      setCurrentStep('tasks');
     }
   }, [state?.dailyCheckIn]);
 
@@ -105,14 +119,26 @@ export default function TabCheckIn({ state, updateState }) {
     const newTotalPoints = (state.totalPoints || 0) + totalPoints;
     const chapterInfo = getChapter(newTotalPoints);
     
-    // Guardar que se completó el check-in de hoy antes de resetear para mañana
+    // Guardar último check-in completado para referencia
+    const completedCheckIn = {
+      date: today,
+      tasksCompleted,
+      answers,
+      points: totalPoints,
+      mentalHealthChange,
+    };
+    
+    // Guardar que se completó el check-in de hoy
+    // dailyCheckIn se resetea a null para un nuevo check-in mañana
+    // Pero las tareas permanecen en dailyTasks
     updateState({
       witnesses: newWitnesses,
       lastCheckIn: today,
       totalPoints: newTotalPoints,
       chapter: chapterInfo.chapter,
       mentalHealth: newMentalHealth,
-      dailyCheckIn: null,
+      lastCompletedCheckIn: completedCheckIn,
+      dailyCheckIn: null, // Listo para nuevo check-in mañana
     });
     
     setSubmitted(true);
@@ -204,32 +230,32 @@ export default function TabCheckIn({ state, updateState }) {
             )}
             <div className="habit-options">
               <button
-                className={`habit-btn ${answers.onicofagia === -10 ? 'active critical' : ''} ${answeredQuestions.has('onicofagia') ? 'disabled' : ''}`}
-                onClick={() => handleAnswerHabit('onicofagia', -10)}
-                disabled={answeredQuestions.has('onicofagia') && answers.onicofagia !== -10}
+                className={`habit-btn ${answers.onicofagia === -4 ? 'active critical' : ''} ${answeredQuestions.has('onicofagia') ? 'disabled' : ''}`}
+                onClick={() => handleAnswerHabit('onicofagia', -4)}
+                disabled={answeredQuestions.has('onicofagia') && answers.onicofagia !== -4}
               >
-                Dañadas (-10)
+                Dañadas (-4)
               </button>
               <button
-                className={`habit-btn ${answers.onicofagia === -5 ? 'active warning' : ''} ${answeredQuestions.has('onicofagia') ? 'disabled' : ''}`}
-                onClick={() => handleAnswerHabit('onicofagia', -5)}
-                disabled={answeredQuestions.has('onicofagia') && answers.onicofagia !== -5}
+                className={`habit-btn ${answers.onicofagia === -2 ? 'active warning' : ''} ${answeredQuestions.has('onicofagia') ? 'disabled' : ''}`}
+                onClick={() => handleAnswerHabit('onicofagia', -2)}
+                disabled={answeredQuestions.has('onicofagia') && answers.onicofagia !== -2}
               >
-                Regular (-5)
+                Regular (-2)
               </button>
               <button
-                className={`habit-btn ${answers.onicofagia === 5 ? 'active good' : ''} ${answeredQuestions.has('onicofagia') ? 'disabled' : ''}`}
-                onClick={() => handleAnswerHabit('onicofagia', 5)}
-                disabled={answeredQuestions.has('onicofagia') && answers.onicofagia !== 5}
+                className={`habit-btn ${answers.onicofagia === 3 ? 'active good' : ''} ${answeredQuestions.has('onicofagia') ? 'disabled' : ''}`}
+                onClick={() => handleAnswerHabit('onicofagia', 3)}
+                disabled={answeredQuestions.has('onicofagia') && answers.onicofagia !== 3}
               >
-                Bien (+5)
+                Bien (+3)
               </button>
               <button
-                className={`habit-btn ${answers.onicofagia === 10 ? 'active excellent' : ''} ${answeredQuestions.has('onicofagia') ? 'disabled' : ''}`}
-                onClick={() => handleAnswerHabit('onicofagia', 10)}
-                disabled={answeredQuestions.has('onicofagia') && answers.onicofagia !== 10}
+                className={`habit-btn ${answers.onicofagia === 6 ? 'active excellent' : ''} ${answeredQuestions.has('onicofagia') ? 'disabled' : ''}`}
+                onClick={() => handleAnswerHabit('onicofagia', 6)}
+                disabled={answeredQuestions.has('onicofagia') && answers.onicofagia !== 6}
               >
-                Excelentes (+10)
+                Excelentes (+6)
               </button>
             </div>
           </div>
@@ -242,18 +268,18 @@ export default function TabCheckIn({ state, updateState }) {
             )}
             <div className="habit-options">
               <button
-                className={`habit-btn ${answers.pantallas_apps === -10 ? 'active critical' : ''} ${answeredQuestions.has('pantallas_apps') ? 'disabled' : ''}`}
-                onClick={() => handleAnswerHabit('pantallas_apps', -10)}
-                disabled={answeredQuestions.has('pantallas_apps') && answers.pantallas_apps !== -10}
+                className={`habit-btn ${answers.pantallas_apps === -6 ? 'active critical' : ''} ${answeredQuestions.has('pantallas_apps') ? 'disabled' : ''}`}
+                onClick={() => handleAnswerHabit('pantallas_apps', -6)}
+                disabled={answeredQuestions.has('pantallas_apps') && answers.pantallas_apps !== -6}
               >
-                Sí (-10)
+                Sí (-6)
               </button>
               <button
-                className={`habit-btn ${answers.pantallas_apps === 10 ? 'active excellent' : ''} ${answeredQuestions.has('pantallas_apps') ? 'disabled' : ''}`}
-                onClick={() => handleAnswerHabit('pantallas_apps', 10)}
-                disabled={answeredQuestions.has('pantallas_apps') && answers.pantallas_apps !== 10}
+                className={`habit-btn ${answers.pantallas_apps === 7 ? 'active excellent' : ''} ${answeredQuestions.has('pantallas_apps') ? 'disabled' : ''}`}
+                onClick={() => handleAnswerHabit('pantallas_apps', 7)}
+                disabled={answeredQuestions.has('pantallas_apps') && answers.pantallas_apps !== 7}
               >
-                No (+10)
+                No (+7)
               </button>
             </div>
           </div>
@@ -266,11 +292,11 @@ export default function TabCheckIn({ state, updateState }) {
             )}
             <div className="habit-options">
               <button
-                className={`habit-btn ${answers.pantallas_impulso === -7 ? 'active critical' : ''} ${answeredQuestions.has('pantallas_impulso') ? 'disabled' : ''}`}
-                onClick={() => handleAnswerHabit('pantallas_impulso', -7)}
-                disabled={answeredQuestions.has('pantallas_impulso') && answers.pantallas_impulso !== -7}
+                className={`habit-btn ${answers.pantallas_impulso === -4 ? 'active critical' : ''} ${answeredQuestions.has('pantallas_impulso') ? 'disabled' : ''}`}
+                onClick={() => handleAnswerHabit('pantallas_impulso', -4)}
+                disabled={answeredQuestions.has('pantallas_impulso') && answers.pantallas_impulso !== -4}
               >
-                Bastante (-7)
+                Bastante (-4)
               </button>
               <button
                 className={`habit-btn ${answers.pantallas_impulso === 0 ? 'active warning' : ''} ${answeredQuestions.has('pantallas_impulso') ? 'disabled' : ''}`}
@@ -280,11 +306,11 @@ export default function TabCheckIn({ state, updateState }) {
                 Poco (0)
               </button>
               <button
-                className={`habit-btn ${answers.pantallas_impulso === 7 ? 'active excellent' : ''} ${answeredQuestions.has('pantallas_impulso') ? 'disabled' : ''}`}
-                onClick={() => handleAnswerHabit('pantallas_impulso', 7)}
-                disabled={answeredQuestions.has('pantallas_impulso') && answers.pantallas_impulso !== 7}
+                className={`habit-btn ${answers.pantallas_impulso === 5 ? 'active excellent' : ''} ${answeredQuestions.has('pantallas_impulso') ? 'disabled' : ''}`}
+                onClick={() => handleAnswerHabit('pantallas_impulso', 5)}
+                disabled={answeredQuestions.has('pantallas_impulso') && answers.pantallas_impulso !== 5}
               >
-                No (+7)
+                No (+5)
               </button>
             </div>
           </div>
@@ -297,11 +323,11 @@ export default function TabCheckIn({ state, updateState }) {
             )}
             <div className="habit-options">
               <button
-                className={`habit-btn ${answers.pornografia === -10 ? 'active critical' : ''} ${answeredQuestions.has('pornografia') ? 'disabled' : ''}`}
-                onClick={() => handleAnswerHabit('pornografia', -10)}
-                disabled={answeredQuestions.has('pornografia') && answers.pornografia !== -10}
+                className={`habit-btn ${answers.pornografia === -5 ? 'active critical' : ''} ${answeredQuestions.has('pornografia') ? 'disabled' : ''}`}
+                onClick={() => handleAnswerHabit('pornografia', -5)}
+                disabled={answeredQuestions.has('pornografia') && answers.pornografia !== -5}
               >
-                Varias (-10)
+                Varias (-5)
               </button>
               <button
                 className={`habit-btn ${answers.pornografia === 0 ? 'active warning' : ''} ${answeredQuestions.has('pornografia') ? 'disabled' : ''}`}
@@ -311,11 +337,11 @@ export default function TabCheckIn({ state, updateState }) {
                 Una (0)
               </button>
               <button
-                className={`habit-btn ${answers.pornografia === 10 ? 'active excellent' : ''} ${answeredQuestions.has('pornografia') ? 'disabled' : ''}`}
-                onClick={() => handleAnswerHabit('pornografia', 10)}
-                disabled={answeredQuestions.has('pornografia') && answers.pornografia !== 10}
+                className={`habit-btn ${answers.pornografia === 8 ? 'active excellent' : ''} ${answeredQuestions.has('pornografia') ? 'disabled' : ''}`}
+                onClick={() => handleAnswerHabit('pornografia', 8)}
+                disabled={answeredQuestions.has('pornografia') && answers.pornografia !== 8}
               >
-                No (+10)
+                No (+8)
               </button>
             </div>
           </div>
@@ -328,11 +354,11 @@ export default function TabCheckIn({ state, updateState }) {
             )}
             <div className="habit-options">
               <button
-                className={`habit-btn ${answers.porros === -10 ? 'active critical' : ''} ${answeredQuestions.has('porros') ? 'disabled' : ''}`}
-                onClick={() => handleAnswerHabit('porros', -10)}
-                disabled={answeredQuestions.has('porros') && answers.porros !== -10}
+                className={`habit-btn ${answers.porros === -5 ? 'active critical' : ''} ${answeredQuestions.has('porros') ? 'disabled' : ''}`}
+                onClick={() => handleAnswerHabit('porros', -5)}
+                disabled={answeredQuestions.has('porros') && answers.porros !== -5}
               >
-                Varias (-10)
+                Varias (-5)
               </button>
               <button
                 className={`habit-btn ${answers.porros === 0 ? 'active warning' : ''} ${answeredQuestions.has('porros') ? 'disabled' : ''}`}
@@ -342,11 +368,11 @@ export default function TabCheckIn({ state, updateState }) {
                 Una (0)
               </button>
               <button
-                className={`habit-btn ${answers.porros === 10 ? 'active excellent' : ''} ${answeredQuestions.has('porros') ? 'disabled' : ''}`}
-                onClick={() => handleAnswerHabit('porros', 10)}
-                disabled={answeredQuestions.has('porros') && answers.porros !== 10}
+                className={`habit-btn ${answers.porros === 8 ? 'active excellent' : ''} ${answeredQuestions.has('porros') ? 'disabled' : ''}`}
+                onClick={() => handleAnswerHabit('porros', 8)}
+                disabled={answeredQuestions.has('porros') && answers.porros !== 8}
               >
-                Nada (+10)
+                Nada (+8)
               </button>
             </div>
           </div>
@@ -359,11 +385,11 @@ export default function TabCheckIn({ state, updateState }) {
             )}
             <div className="habit-options">
               <button
-                className={`habit-btn ${answers.tabaco === -10 ? 'active critical' : ''} ${answeredQuestions.has('tabaco') ? 'disabled' : ''}`}
-                onClick={() => handleAnswerHabit('tabaco', -10)}
-                disabled={answeredQuestions.has('tabaco') && answers.tabaco !== -10}
+                className={`habit-btn ${answers.tabaco === -5 ? 'active critical' : ''} ${answeredQuestions.has('tabaco') ? 'disabled' : ''}`}
+                onClick={() => handleAnswerHabit('tabaco', -5)}
+                disabled={answeredQuestions.has('tabaco') && answers.tabaco !== -5}
               >
-                Varias (-10)
+                Varias (-5)
               </button>
               <button
                 className={`habit-btn ${answers.tabaco === 0 ? 'active warning' : ''} ${answeredQuestions.has('tabaco') ? 'disabled' : ''}`}
@@ -373,11 +399,11 @@ export default function TabCheckIn({ state, updateState }) {
                 Una (0)
               </button>
               <button
-                className={`habit-btn ${answers.tabaco === 10 ? 'active excellent' : ''} ${answeredQuestions.has('tabaco') ? 'disabled' : ''}`}
-                onClick={() => handleAnswerHabit('tabaco', 10)}
-                disabled={answeredQuestions.has('tabaco') && answers.tabaco !== 10}
+                className={`habit-btn ${answers.tabaco === 8 ? 'active excellent' : ''} ${answeredQuestions.has('tabaco') ? 'disabled' : ''}`}
+                onClick={() => handleAnswerHabit('tabaco', 8)}
+                disabled={answeredQuestions.has('tabaco') && answers.tabaco !== 8}
               >
-                Nada (+10)
+                Nada (+8)
               </button>
             </div>
           </div>
