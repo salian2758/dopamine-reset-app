@@ -6,8 +6,8 @@ export const INTERVENTIONS = {
     deteccion: {
       solo_casa: [
         { name: "Hielo en cara", desc: "Agua helada. Quiebra trance.", time: "1 min", critical: true },
-        { name: "Desactiva WiFi", desc: "Imposible acceder.", time: "1 min", critical: true },
-        { name: "Sal de habitación", desc: "Cambio contexto.", time: "5 min", critical: false },
+        { name: "Sal de habitación", desc: "Cambio contexto. Donde no sea problema.", time: "5 min", critical: true },
+        { name: "Ducha fría", desc: "3 minutos. Choque neurológico completo.", time: "3 min", critical: false },
       ],
       solo_trabajo: [
         { name: "Agua fría baño", desc: "Shock rápido.", time: "2 min", critical: true },
@@ -66,12 +66,12 @@ export const INTERVENTIONS = {
     cediendo: {
       solo_casa: [
         { name: "Ducha fría EXTREMA", desc: "3 minutos. Shock total.", time: "3 min", critical: true },
-        { name: "Llama Javier AHORA", desc: "Crisis. Emergencia.", time: "5 min", critical: true },
-        { name: "Llama María urgente", desc: "'Necesito ayuda'.", time: "5 min", critical: true },
+        { name: "Llama accountability AHORA", desc: "Crisis. Emergencia.", time: "5 min", critical: true },
+        { name: "Llama a María urgente", desc: "'Necesito ayuda'.", time: "5 min", critical: true },
       ],
       solo_trabajo: [
         { name: "Sal de edificio", desc: "Cambia de sitio COMPLETAMENTE.", time: "10 min", critical: true },
-        { name: "Llama accountability", desc: "Voz en tiempo real.", time: "5 min", critical: true },
+        { name: "Llama a alguien de confianza", desc: "Voz en tiempo real.", time: "5 min", critical: true },
       ],
       solo_calle: [
         { name: "Entra a lugar MÁS público", desc: "Comisaría, centro comercial.", time: "5 min", critical: true },
@@ -137,7 +137,7 @@ export const INTERVENTIONS = {
     cediendo: {
       solo_casa: [
         { name: "PÁRATE de inmediato", desc: "Interrumpe el ciclo NOW.", time: "1 min", critical: true },
-        { name: "Javier urgente", desc: "Accountability extrema.", time: "5 min", critical: true },
+        { name: "Llama accountability urgente", desc: "Necesitas voz.", time: "5 min", critical: true },
       ],
       solo_trabajo: [
         { name: "Sal de escritorio", desc: "10 min fuera.", time: "10 min", critical: true },
@@ -363,7 +363,7 @@ export const TOP_10_UNIVERSAL = [
   { name: "Escucha música", desc: "Dopamina limpia. Enfoque.", time: "5 min", critical: false, habits: ["Procrastinación", "Pantallas", "Porros", "Tabaco"] },
   { name: "Agua fría en cara", desc: "Shock del sistema. Quiebra impulso.", time: "1 min", critical: true, habits: ["Pornografía", "Procrastinación", "Porros"] },
   { name: "Micro-tarea 2 min", desc: "Acción inmediata. Momentum.", time: "2 min", critical: true, habits: ["Procrastinación", "Pantallas"] },
-  { name: "Llama a accountability", desc: "Voz real. Conexión.", time: "5 min", critical: true, habits: ["Pornografía", "Porros"] },
+  { name: "Llama a alguien de confianza", desc: "Voz real. Conexión.", time: "5 min", critical: true, habits: ["Pornografía", "Porros"] },
   { name: "Cambiar de cuarto", desc: "Rompe contexto. Nuevo circuito.", time: "1 min", critical: true, habits: ["Pornografía", "Pantallas", "Porros"] },
   { name: "Estiramiento/ejercicio", desc: "Movimiento. Descarga tensión.", time: "3 min", critical: false, habits: ["Procrastinación", "Pantallas", "Porros", "Tabaco"] },
   { name: "Journaling rápido", desc: "Escribe impulso. Comprende trigger.", time: "3 min", critical: false, habits: ["Pornografía", "Procrastinación"] },
