@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getWitnessMessage } from '../messages';
+import { calculateTotalDayPoints, calculateMentalHealthChange, getChapter } from '../balanceSystem';
 
 export default function TabCheckIn({ state, updateState }) {
   const [checkInState, setCheckInState] = useState(null);
@@ -79,65 +80,47 @@ export default function TabCheckIn({ state, updateState }) {
   }
 
   function handleFinalizeCheckIn() {
-    // Calcular puntos SOLO de lo que respondió
-    const answeredCount = Object.values(answers).filter(a => a !== null).length;
-    const totalHabits = 6;
-    
-    // NO castigar si no respondió todo, solo calcula lo que respondió
+    // Calcular puntos con nuevo sistema balanceado
     const totalPoints = calculatePoints(answers, tasksCompleted);
     
-    // Salud mental: solo si COMPLETÓ todas las tareas (o respondió sobre ellas)
+    // Calcular salud mental con nuevo sistema
     const completedCount = Object.values(tasksCompleted).filter(t => t).length;
     const totalTasks = state.dailyTasks?.length || 3;
+    
+    // Contar hábitos fallados para penalización
+    const failedHabits = Object.values(answers).filter(a => a !== null && a < 0).length;
+    const mentalHealthChange = calculateMentalHealthChange(tasksCompleted, false, failedHabits);
+    const newMentalHealth = Math.max(0, Math.min(100, (state.mentalHealth || 50) + mentalHealthChange));
     
     const witness = {
       id: Date.now(),
       date: new Date().toLocaleDateString('es-ES'),
-      message: getWitnessMessage(completedCount, totalTasks, state.mentalHealth, false),
+      message: getWitnessMessage(completedCount, totalTasks, newMentalHealth, false),
     };
     
     const newWitnesses = [witness, ...state.witnesses].slice(0, 10);
     const today = new Date().toISOString();
     
+    // Actualizar capítulo automáticamente
+    const newTotalPoints = (state.totalPoints || 0) + totalPoints;
+    const chapterInfo = getChapter(newTotalPoints);
+    
     // Guardar que se completó el check-in de hoy antes de resetear para mañana
     updateState({
       witnesses: newWitnesses,
-      lastCheckIn: today, // Esto marca que se hizo check-in HOY
-      totalPoints: (state.totalPoints || 0) + totalPoints,
-      dailyCheckIn: null, // Resetear para que mañana se pueda hacer nuevo check-in
+      lastCheckIn: today,
+      totalPoints: newTotalPoints,
+      chapter: chapterInfo.chapter,
+      mentalHealth: newMentalHealth,
+      dailyCheckIn: null,
     });
     
     setSubmitted(true);
   }
 
   function calculatePoints(answers, tasks) {
-    let points = 0;
-    
-    // Puntos por tareas
-    const completedTasks = Object.values(tasks).filter(t => t).length;
-    points += completedTasks * 5;
-    
-    // Puntos por hábitos (solo de lo respondido)
-    if (answers.onicofagia !== null) {
-      points += answers.onicofagia;
-    }
-    if (answers.pornografia !== null) {
-      points += answers.pornografia;
-    }
-    if (answers.porros !== null) {
-      points += answers.porros;
-    }
-    if (answers.tabaco !== null) {
-      points += answers.tabaco;
-    }
-    if (answers.pantallas_apps !== null) {
-      points += answers.pantallas_apps;
-    }
-    if (answers.pantallas_impulso !== null) {
-      points += answers.pantallas_impulso;
-    }
-    
-    return Math.max(0, points);
+    // Usar nuevo sistema balanceado
+    return calculateTotalDayPoints(answers, tasks);
   }
 
   // Si ya finalizó hoy
