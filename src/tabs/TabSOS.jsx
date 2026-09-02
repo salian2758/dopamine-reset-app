@@ -39,7 +39,6 @@ export default function TabSOS({ state, updateState }) {
     '🎯 Cada segundo cuenta. Punto real.',
     '❌ NO es derrota. Es ENTRENAMIENTO.',
     '🔥 Tu cuerpo es más fuerte que el impulso',
-    '📞 Si no puedes solo, llama a Javier',
     '🛁 Agua fría. Hielo. Movimiento.',
     '⏱️ Mira el timer. Gana tiempo.',
   ];
@@ -78,7 +77,6 @@ export default function TabSOS({ state, updateState }) {
           <div className="action-list">
             <div className="action">💧 Agua helada en cara</div>
             <div className="action">🏃 Corre / Salta ahora</div>
-            <div className="action">📞 Llama a Javier</div>
             <div className="action">💑 Llama a María</div>
             <div className="action">🚿 Ducha fría extrema</div>
             <div className="action">💪 Flexiones hasta sudar</div>

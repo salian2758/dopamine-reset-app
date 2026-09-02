@@ -53,6 +53,7 @@ export default function TabCheckIn({ state, updateState }) {
 
   function handleTaskOption(taskId, option) {
     // option: 'done' | 'not-done'
+    console.log('🔵 handleTaskOption', taskId, option); // DEBUG
     const newTasksCompleted = {
       ...tasksCompleted,
       [taskId]: option,
@@ -102,8 +103,10 @@ export default function TabCheckIn({ state, updateState }) {
   }
 
   function handleNextStep() {
+    console.log('🔴 handleNextStep called, currentStep:', currentStep); // DEBUG
     if (currentStep === 'tasks') {
       const newStep = 'habits';
+      console.log('🟡 Moving to habits'); // DEBUG
       setCurrentStep(newStep);
       updateCheckInProgress({ currentStep: newStep });
     }
@@ -220,6 +223,9 @@ export default function TabCheckIn({ state, updateState }) {
           Guarda durante el día, contesta lo que puedas
         </div>
         <div className="checkin-progress">{currentStep === 'tasks' ? '1/2 - Tareas' : '2/2 - Hábitos'}</div>
+        <div className="checkin-info">
+          💡 Tus respuestas se guardan automáticamente. Los puntos se calculan cuando das "Finalizar".
+        </div>
       </div>
 
       {currentStep === 'tasks' && (

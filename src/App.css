@@ -972,6 +972,17 @@ input, textarea, button {
   margin-top: 8px;
 }
 
+.checkin-info {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 8px;
+  padding: 8px;
+  background: rgba(34, 197, 94, 0.1);
+  border-left: 2px solid var(--primary);
+  border-radius: 3px;
+  font-style: italic;
+}
+
 .section-info {
   color: var(--text-secondary);
   font-size: 14px;
@@ -1367,6 +1378,46 @@ input, textarea, button {
   padding: 0;
   filter: drop-shadow(0 2px 4px rgba(102, 126, 234, 0.3));
   animation: float 3s ease-in-out infinite;
+}
+
+.logo-wrapper {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.settings-btn-logo {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: var(--bg-2);
+  border: 1.5px solid var(--border);
+  color: var(--text-primary);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: all 0.2s;
+  padding: 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.settings-btn-logo:hover {
+  background: var(--primary);
+  border-color: var(--primary);
+  transform: scale(1.1);
+}
+
+.settings-btn-logo:active {
+  transform: scale(0.95);
 }
 
 @keyframes float {

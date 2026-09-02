@@ -184,7 +184,16 @@ export default function App() {
       <header className="app-header">
         <div className="header-banner">
           <div className="header-logo-section">
-            <img src="/logo.svg" alt="Dopamine Reset Logo" className="header-logo" />
+            <div className="logo-wrapper">
+              <img src="/logo.svg" alt="Dopamine Reset Logo" className="header-logo" />
+              <button 
+                className="settings-btn-logo" 
+                onClick={() => setShowSettings(true)} 
+                title="Ajustes"
+              >
+                ⚙️
+              </button>
+            </div>
             <div className="header-text-wrapper">
               <div className="header-title">{headerMessage}</div>
               <div className="header-subtitle">Capítulo {appState.chapter} • Salud Mental: {appState.mentalHealth}%</div>
@@ -192,7 +201,6 @@ export default function App() {
           </div>
         </div>
         <div className="header-actions">
-          <button className="settings-btn" onClick={() => setShowSettings(true)} title="Ajustes">⚙️</button>
           <button className="logout-btn" onClick={handleLogout}>Salir</button>
         </div>
       </header>
