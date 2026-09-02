@@ -57,9 +57,37 @@ body {
   transition: all 0.2s;
   flex-shrink: 0;
   margin-right: 12px;
+  user-select: none;
 }
 
 .logout-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.settings-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 0.5px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+.settings-btn:hover {
   background: rgba(255, 255, 255, 0.3);
 }
 

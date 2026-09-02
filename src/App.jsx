@@ -6,6 +6,7 @@ import { getHeaderMessage } from './messages';
 import { shouldApplyDefaultFailure, applyDefaultFailure } from './checkInManager';
 import './App.css';
 import Login from './Login';
+import Settings from './Settings';
 import TabToday from './tabs/TabToday';
 import TabSOS from './tabs/TabSOS';
 import TabCheckIn from './tabs/TabCheckIn';
@@ -18,6 +19,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('today');
   const [appState, setAppState] = useState(null);
   const [selectedHabitForAlternatives, setSelectedHabitForAlternatives] = useState(null);
+  const [showSettings, setShowSettings] = useState(false);
   const [headerMessage, setHeaderMessage] = useState('🧒 Tu futuro hijo está mirando');
 
   // Escuchar cambios de autenticación
@@ -159,7 +161,10 @@ export default function App() {
             </div>
           </div>
         </div>
-        <button className="logout-btn" onClick={handleLogout}>Salir</button>
+        <div className="header-actions">
+          <button className="settings-btn" onClick={() => setShowSettings(true)} title="Ajustes">⚙️</button>
+          <button className="logout-btn" onClick={handleLogout}>Salir</button>
+        </div>
       </header>
 
       <main className="app-main">
@@ -187,6 +192,14 @@ export default function App() {
           🎯 Alternativas
         </button>
       </nav>
+
+      {showSettings && (
+        <Settings 
+          state={appState} 
+          updateState={updateAppState} 
+          onClose={() => setShowSettings(false)} 
+        />
+      )}
     </div>
   );
 }
