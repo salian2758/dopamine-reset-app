@@ -256,6 +256,7 @@ export default function TabToday({ state, updateState, onNavigateToTab }) {
                 </div>
                 <div className="xp-text">
                   {habit.xp}
+                  {console.log(`DEBUG: ${key} xpPreview =`, state.dailyCheckIn?.xpPreview?.[key])}
                   {state.dailyCheckIn?.xpPreview?.[key] ? (
                     <span className="xp-preview"> + {state.dailyCheckIn.xpPreview[key]} (preview)</span>
                   ) : null}
