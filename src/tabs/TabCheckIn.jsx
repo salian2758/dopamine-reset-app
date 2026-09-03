@@ -140,19 +140,15 @@ export default function TabCheckIn({ state, updateState }) {
     const baseCheckIn = checkInState || {
       tasksCompleted: {},
       answers: {},
-      currentStep: 'tasks',
+      currentStep: currentStep, // Usar currentStep local, no del checkInState viejo
     };
     
     const updatedCheckIn = {
       ...baseCheckIn,
       ...updates,
+      currentStep: updates.currentStep !== undefined ? updates.currentStep : currentStep, // IMPORTANTE: preservar currentStep local
       lastUpdated: new Date().toISOString(),
     };
-    
-    // Asegurar que currentStep está en el objeto (tomar el valor actualizado)
-    if (!updatedCheckIn.currentStep && updates.currentStep === undefined) {
-      updatedCheckIn.currentStep = currentStep;
-    }
     
     setCheckInState(updatedCheckIn);
     updateState({
