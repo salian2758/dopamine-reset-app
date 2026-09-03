@@ -254,7 +254,13 @@ export default function TabToday({ state, updateState, onNavigateToTab }) {
                 <div className="xp-bar">
                   <div className="xp-fill" style={{ width: `${(habit.xp / habit.xpRequired) * 100}%` }} />
                 </div>
-                <div className="xp-text">{habit.xp} / {habit.xpRequired} XP</div>
+                <div className="xp-text">
+                  {habit.xp}
+                  {state.dailyCheckIn?.xpPreview?.[key] ? (
+                    <span className="xp-preview"> + {state.dailyCheckIn.xpPreview[key]} (preview)</span>
+                  ) : null}
+                  {' / '}{habit.xpRequired} XP
+                </div>
               </div>
             );
           })}

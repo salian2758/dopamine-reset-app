@@ -102,8 +102,36 @@ export default function TabCheckIn({ state, updateState }) {
     setAnswers(newAnswers);
     setAnsweredQuestions(new Set([...answeredQuestions, question]));
     
-    // Guardar respuesta inmediatamente
-    updateCheckInProgress({ answers: newAnswers });
+    // CALCULAR PREVIEW DE XP EN TIEMPO REAL
+    // Crear objeto temporal con nuevas respuestas para calcular preview
+    const tempAnswers = newAnswers;
+    const habitResponseMap = {
+      pornografia: 'pornografia',
+      porros: 'porros',
+      tabaco: 'tabaco',
+      onicofagia: 'onicofagia',
+      pantallas_apps: 'pantallas',
+      pantallas_impulso: 'pantallas',
+    };
+    
+    const xpPreview = {};
+    Object.entries(tempAnswers).forEach(([key, points]) => {
+      if (points !== null) {
+        const habitKey = habitResponseMap[key];
+        if (!xpPreview[habitKey]) {
+          xpPreview[habitKey] = 0;
+        }
+        xpPreview[habitKey] += Math.abs(points) * 2;
+      }
+    });
+    
+    console.log('📊 XP Preview en tiempo real:', xpPreview); // DEBUG
+    
+    // Guardar respuesta inmediatamente CON preview de XP
+    updateCheckInProgress({ 
+      answers: newAnswers,
+      xpPreview: xpPreview,
+    });
   }
 
   function updateCheckInProgress(updates) {
