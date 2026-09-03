@@ -278,6 +278,7 @@ export default function TabCheckIn({ state, updateState }) {
       pantallas_impulso: 'pantallas',
     };
     
+    // Actualizar hábitos por respuestas
     Object.entries(answers).forEach(([key, points]) => {
       if (points !== null) {
         const habitKey = habitResponseMap[key];
@@ -314,6 +315,37 @@ export default function TabCheckIn({ state, updateState }) {
         }
       }
     });
+    
+    // PROCRASTINACIÓN: Calcular XP basado en tareas completadas (usar variables ya declaradas)
+    let procrastinationXP = 0;
+    
+    if (completedCount === totalTasks) {
+      procrastinationXP = 20; // +20 XP si completó todas las tareas
+    } else if (completedCount === totalTasks - 1) {
+      procrastinationXP = 10; // +10 XP si completó 2/3
+    } else if (completedCount === totalTasks - 2) {
+      procrastinationXP = 5; // +5 XP si completó 1/3
+    } else if (completedCount === 0) {
+      procrastinationXP = -15; // -15 XP si no completó ninguna
+    }
+    
+    if (procrastinationXP !== 0) {
+      updatedHabits.procrastinacion.xp += Math.abs(procrastinationXP);
+      
+      if (procrastinationXP > 0) {
+        updatedHabits.procrastinacion.streak += 1;
+        updatedHabits.procrastinacion.multiplier = Math.min(4.0, 1.0 + (updatedHabits.procrastinacion.streak * 0.2));
+      } else {
+        updatedHabits.procrastinacion.streak = 0;
+        updatedHabits.procrastinacion.multiplier = 0.5;
+      }
+      
+      console.log(`🎯 procrastinacion actualizado (${completedCount}/${totalTasks}):`, {
+        xp: updatedHabits.procrastinacion.xp,
+        level: updatedHabits.procrastinacion.level,
+        streak: updatedHabits.procrastinacion.streak,
+      });
+    }
     
     console.log('🎮 Todos los hábitos:', updatedHabits); // DEBUG
     

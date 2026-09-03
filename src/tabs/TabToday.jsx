@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { getChapter } from '../balanceSystem';
 
 const HABITS_CONFIG = {
@@ -20,6 +20,14 @@ const CHAPTERS = {
 export default function TabToday({ state, updateState, onNavigateToTab }) {
   const [newTaskText, setNewTaskText] = useState('');
   const [selectedHabit, setSelectedHabit] = useState(null);
+
+  // DEBUG: Ver tareas al cargar
+  useEffect(() => {
+    console.log('🔍 DEBUG TAREAS CARGADAS:', {
+      total: state.dailyTasks?.length,
+      tareas: state.dailyTasks?.map(t => ({ id: t.id, name: t.name, done: t.done }))
+    });
+  }, [state.dailyTasks?.length]);
 
   function getChapterProgress(points) {
     const chapter = getChapter(points);
