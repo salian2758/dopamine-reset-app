@@ -53,7 +53,7 @@ export default function TabCheckIn({ state, updateState }) {
 
   function handleTaskOption(taskId, option) {
     // option: 'done' | 'not-done'
-    console.log('🔵 handleTaskOption', taskId, option); // DEBUG
+    console.log('🔵 handleTaskOption LLAMADA:', { taskId, option, currentStep, timestamp: new Date().toISOString() });
     const newTasksCompleted = {
       ...tasksCompleted,
       [taskId]: option,
@@ -62,6 +62,7 @@ export default function TabCheckIn({ state, updateState }) {
     
     // Guardar tareas inmediatamente
     updateCheckInProgress({ tasksCompleted: newTasksCompleted });
+    console.log('🔵 handleTaskOption COMPLETADA - estado guardado');
   }
 
   function calculateHabitXPPreview() {
@@ -160,10 +161,11 @@ export default function TabCheckIn({ state, updateState }) {
   }
 
   function handleNextStep() {
-    console.log('🔴 handleNextStep called, currentStep:', currentStep); // DEBUG
+    console.log('🔴 ⚠️ handleNextStep LLAMADA - currentStep:', currentStep, 'timestamp:', new Date().toISOString());
+    console.trace('🔴 STACK TRACE - revisar dónde se llamó handleNextStep');
     if (currentStep === 'tasks') {
       const newStep = 'habits';
-      console.log('🟡 Moving to habits'); // DEBUG
+      console.log('🟡 Moviendo a step:', newStep);
       setCurrentStep(newStep);
       updateCheckInProgress({ currentStep: newStep });
     }

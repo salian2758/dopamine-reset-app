@@ -7,7 +7,7 @@ import { shouldApplyDefaultFailure, applyDefaultFailure } from './checkInManager
 import { autoFinalizeCheckIn } from './balanceSystem';
 import './App.css';
 import Login from './Login';
-import Settings from './Settings';
+import Settings from './tabs/Settings';
 import TabToday from './tabs/TabToday';
 import TabSOS from './tabs/TabSOS';
 import TabCheckIn from './tabs/TabCheckIn';
