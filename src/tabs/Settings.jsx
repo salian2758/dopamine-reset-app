@@ -51,8 +51,8 @@ export default function Settings({ state, updateState, onClose }) {
 
       {/* HÁBITOS VISIBLES/OCULTOS */}
       <div className="settings-section">
-        <div className="section-title">👁️ Visibilidad de Hábitos</div>
-        <p className="section-hint">Oculta hábitos que no quieras rastrear. Reaparece todo cuando los muestres de nuevo.</p>
+        <div className="section-title">👁️ Hábitos en la App</div>
+        <p className="section-hint">Marca los hábitos que quieres rastrear. Los ocultos desaparecerán de Check-in, Hoy, SOS y Alternativas.</p>
         
         <div className="habits-toggle-list">
           {Object.entries(HABITS_CONFIG).map(([key, config]) => (
@@ -110,8 +110,8 @@ export default function Settings({ state, updateState, onClose }) {
 
       {/* INFO */}
       <div className="settings-info">
-        <p>ℹ️ <strong>Hábitos ocultos:</strong> Desaparecerán del Check-in, Hoy, Alternativas y Cartas.</p>
-        <p>✨ <strong>Hábitos personalizados:</strong> Aparecerán en Check-in como preguntas simples con puntuación automática.</p>
+        <p>ℹ️ <strong>Hábitos ocultos:</strong> Desaparecerán completamente de la app mientras los tengas ocultos.</p>
+        <p>✨ <strong>Hábitos personalizados:</strong> Aparecerán en Check-in como preguntas nuevas.</p>
       </div>
     </div>
   );
