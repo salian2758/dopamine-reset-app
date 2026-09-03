@@ -208,8 +208,60 @@ export default function TabCheckIn({ state, updateState }) {
       dailyTasks: updatedDailyTasks, // Sincronizar tareas
     };
     
-    console.log('🔵 Guardando en Firebase:', updatePayload); // DEBUG
-    updateState(updatePayload);
+    // ACTUALIZAR XP DE HÁBITOS (NUEVO - crítico)
+    const updatedHabits = { ...state.habits };
+    
+    // Mapeo de respuestas a claves de hábitos
+    const habitResponseMap = {
+      pornografia: 'pornografia',
+      porros: 'porros',
+      tabaco: 'tabaco',
+      onicofagia: 'onicofagia',
+      pantallas_apps: 'pantallas',
+      pantallas_impulso: 'pantallas',
+    };
+    
+    Object.entries(answers).forEach(([key, points]) => {
+      if (points !== null) {
+        const habitKey = habitResponseMap[key];
+        if (habitKey && updatedHabits[habitKey]) {
+          // Ganar XP basado en los puntos
+          const xpGained = Math.abs(points) * 2; // Ej: +8 puntos = +16 XP, -5 puntos = +10 XP
+          updatedHabits[habitKey].xp += xpGained;
+          
+          // Verificar si se sube de nivel
+          if (updatedHabits[habitKey].xp >= updatedHabits[habitKey].xpRequired) {
+            updatedHabits[habitKey].xp -= updatedHabits[habitKey].xpRequired;
+            updatedHabits[habitKey].level += 1;
+            updatedHabits[habitKey].xpRequired = Math.floor(updatedHabits[habitKey].xpRequired * 1.15);
+          }
+          
+          // Actualizar racha y multiplicador basado en respuesta
+          if (points > 0) {
+            // Respuesta positiva → incrementar racha
+            updatedHabits[habitKey].streak += 1;
+            updatedHabits[habitKey].multiplier = Math.min(4.0, 1.0 + (updatedHabits[habitKey].streak * 0.2));
+          } else if (points < 0) {
+            // Respuesta negativa → resetear racha
+            updatedHabits[habitKey].streak = 0;
+            updatedHabits[habitKey].multiplier = 0.5;
+          }
+          // Si points === 0, no cambia racha ni multiplicador
+          
+          console.log(`🎯 ${habitKey} actualizado:`, {
+            xp: updatedHabits[habitKey].xp,
+            level: updatedHabits[habitKey].level,
+            streak: updatedHabits[habitKey].streak,
+            multiplier: updatedHabits[habitKey].multiplier,
+          });
+        }
+      }
+    });
+    
+    console.log('🎮 Todos los hábitos:', updatedHabits); // DEBUG
+    
+    // Agregar hábitos al payload
+    updatePayload.habits = updatedHabits;
     console.log('✅ Check-in finalizado'); // DEBUG
     
     setSubmitted(true);
