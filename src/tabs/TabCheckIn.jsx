@@ -469,7 +469,8 @@ export default function TabCheckIn({ state, updateState }) {
         <div className="questions-container">
           <p className="section-info">🎯 Responde sobre tus hábitos (respuestas bloqueadas después):</p>
 
-          {/* Onicofagia */}
+          {/* Onicofagia - Solo si NO está oculta */}
+          {!state.hiddenHabits?.includes('onicofagia') && (
           <div className="habit-section">
             <h4>Uñas (Onicofagia)</h4>
             {answeredQuestions.has('onicofagia') && (
@@ -506,34 +507,36 @@ export default function TabCheckIn({ state, updateState }) {
               </button>
             </div>
           </div>
+          )}
 
-          {/* Pantallas Apps */}
-          <div className="habit-section">
-            <h4>📱 Pantallas (Prevención): ¿Instalaste apps o pusiste contenido nuevo en el móvil?</h4>
-            {answeredQuestions.has('pantallas_apps') && (
-              <div className="answered-badge">✓ Ya respondida</div>
-            )}
-            <div className="habit-options">
-              <button
-                className={`habit-btn ${answers.pantallas_apps === -6 ? 'active critical' : ''} ${answeredQuestions.has('pantallas_apps') ? 'disabled' : ''}`}
-                onClick={() => handleAnswerHabit('pantallas_apps', -6)}
-                disabled={answeredQuestions.has('pantallas_apps') && answers.pantallas_apps !== -6}
-              >
-                Sí (-6)
-              </button>
-              <button
-                className={`habit-btn ${answers.pantallas_apps === 7 ? 'active excellent' : ''} ${answeredQuestions.has('pantallas_apps') ? 'disabled' : ''}`}
-                onClick={() => handleAnswerHabit('pantallas_apps', 7)}
-                disabled={answeredQuestions.has('pantallas_apps') && answers.pantallas_apps !== 7}
-              >
-                No (+7)
-              </button>
-            </div>
-          </div>
+          {/* Pantallas - Solo si NO está oculta */}
+          {!state.hiddenHabits?.includes('pantallas') && (
+            <>
+              <div className="habit-section">
+                <h4>📱 Pantallas (Prevención): ¿Instalaste apps o pusiste contenido nuevo en el móvil?</h4>
+                {answeredQuestions.has('pantallas_apps') && (
+                  <div className="answered-badge">✓ Ya respondida</div>
+                )}
+                <div className="habit-options">
+                  <button
+                    className={`habit-btn ${answers.pantallas_apps === -6 ? 'active critical' : ''} ${answeredQuestions.has('pantallas_apps') ? 'disabled' : ''}`}
+                    onClick={() => handleAnswerHabit('pantallas_apps', -6)}
+                    disabled={answeredQuestions.has('pantallas_apps') && answers.pantallas_apps !== -6}
+                  >
+                    Sí (-6)
+                  </button>
+                  <button
+                    className={`habit-btn ${answers.pantallas_apps === 7 ? 'active excellent' : ''} ${answeredQuestions.has('pantallas_apps') ? 'disabled' : ''}`}
+                    onClick={() => handleAnswerHabit('pantallas_apps', 7)}
+                    disabled={answeredQuestions.has('pantallas_apps') && answers.pantallas_apps !== 7}
+                  >
+                    No (+7)
+                  </button>
+                </div>
+              </div>
 
-          {/* Pantallas Control */}
-          <div className="habit-section">
-            <h4>📱 Pantallas (Control): ¿Cuando usaste el móvil, lo tuviste controlado?</h4>
+              <div className="habit-section">
+                <h4>📱 Pantallas (Control): ¿Cuando usaste el móvil, lo tuviste controlado?</h4>
             {answeredQuestions.has('pantallas_impulso') && (
               <div className="answered-badge">✓ Ya respondida</div>
             )}
@@ -561,8 +564,11 @@ export default function TabCheckIn({ state, updateState }) {
               </button>
             </div>
           </div>
+            </>
+          )}
 
-          {/* Pornografía */}
+          {/* Pornografía - Solo si NO está oculta */}
+          {!state.hiddenHabits?.includes('pornografia') && (
           <div className="habit-section">
             <h4>🔴 Pornografía</h4>
             {answeredQuestions.has('pornografia') && (
@@ -592,8 +598,10 @@ export default function TabCheckIn({ state, updateState }) {
               </button>
             </div>
           </div>
+          )}
 
-          {/* Porros */}
+          {/* Porros - Solo si NO está oculto */}
+          {!state.hiddenHabits?.includes('porros') && (
           <div className="habit-section">
             <h4>🔴 Porros</h4>
             {answeredQuestions.has('porros') && (
@@ -623,8 +631,10 @@ export default function TabCheckIn({ state, updateState }) {
               </button>
             </div>
           </div>
+          )}
 
-          {/* Tabaco */}
+          {/* Tabaco - Solo si NO está oculto */}
+          {!state.hiddenHabits?.includes('tabaco') && (
           <div className="habit-section">
             <h4>🔴 Tabaco</h4>
             {answeredQuestions.has('tabaco') && (
@@ -654,6 +664,7 @@ export default function TabCheckIn({ state, updateState }) {
               </button>
             </div>
           </div>
+          )}
 
           <div className="checkin-actions">
             <button className="btn-secondary" onClick={() => setCurrentStep('tasks')}>

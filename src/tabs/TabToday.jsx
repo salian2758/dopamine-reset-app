@@ -96,12 +96,14 @@ export default function TabToday({ state, updateState, onNavigateToTab }) {
   }
 
   function getHabitsSorted() {
-    const sorted = Object.entries(state.habits).sort(([, a], [, b]) => {
-      if (a.streak === 0 && b.streak === 0) return a.level - b.level;
-      if (a.streak === 0) return -1;
-      if (b.streak === 0) return 1;
-      return a.level - b.level;
-    });
+    const sorted = Object.entries(state.habits)
+      .filter(([key]) => !state.hiddenHabits?.includes(key)) // NUEVO: excluir hábitos ocultos
+      .sort(([, a], [, b]) => {
+        if (a.streak === 0 && b.streak === 0) return a.level - b.level;
+        if (a.streak === 0) return -1;
+        if (b.streak === 0) return 1;
+        return a.level - b.level;
+      });
     return sorted;
   }
 
