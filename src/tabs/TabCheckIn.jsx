@@ -64,6 +64,35 @@ export default function TabCheckIn({ state, updateState }) {
     updateCheckInProgress({ tasksCompleted: newTasksCompleted });
   }
 
+  function calculateHabitXPPreview() {
+    // Retorna un objeto con XP ganada por cada hábito basado en respuestas actuales
+    const preview = {};
+    
+    const habitResponseMap = {
+      pornografia: 'pornografia',
+      porros: 'porros',
+      tabaco: 'tabaco',
+      onicofagia: 'onicofagia',
+      pantallas_apps: 'pantallas',
+      pantallas_impulso: 'pantallas',
+    };
+    
+    Object.entries(answers).forEach(([key, points]) => {
+      if (points !== null) {
+        const habitKey = habitResponseMap[key];
+        if (!preview[habitKey]) {
+          preview[habitKey] = 0;
+        }
+        preview[habitKey] += Math.abs(points) * 2; // XP = abs(puntos) * 2
+      }
+    });
+    
+    return preview;
+  }
+
+  // Recalcular preview cuando cambian las respuestas
+  const xpPreview = calculateHabitXPPreview();
+
   function handleAnswerHabit(question, answer) {
     if (answeredQuestions.has(question)) {
       return; // Ya respondida, bloqueada

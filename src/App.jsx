@@ -124,6 +124,9 @@ export default function App() {
         { id: 2, name: 'Tarea 2', done: false },
         { id: 3, name: 'Tarea 3', done: false },
       ],
+      hiddenHabits: [], // NUEVO: hábitos ocultos
+      customHabits: [], // NUEVO: hábitos personalizados
+      lastCheckInFinalized: null, // NUEVO: para bloquear múltiples finalizaciones
       dailyCheckIn: null, // Check-in progresivo del día
       habits: {
         pornografia: { level: 1, xp: 0, xpRequired: 100, streak: 0, multiplier: 1.0 },

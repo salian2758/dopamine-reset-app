@@ -119,7 +119,7 @@ export default function TabToday({ state, updateState, onNavigateToTab }) {
 
       {/* 3 TAREAS DEL DÍA */}
       <div className="tasks-section">
-        <div className="section-title">📌 Tareas Prioritarias del Día</div>
+        <div className="section-title">📌 Tareas Prioritarias del Día ({state.dailyTasks?.length || 0}/3)</div>
         <p className="section-hint">Clickea para editar. Estas son tus objetivos del día.</p>
         <div className="tasks-list">
           {state.dailyTasks.slice(0, 3).map(task => (
